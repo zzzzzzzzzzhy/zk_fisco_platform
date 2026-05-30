@@ -86,6 +86,8 @@ public class SecurityConfig {
                         .requestMatchers("/governance/**").permitAll()
                         // 允许 Rollup 批次查询
                         .requestMatchers("/rollup/**").permitAll()
+                        // ZK 排名：查询公开（commit/prove 由 @RequireRole 保护）
+                        .requestMatchers(HttpMethod.GET, "/zk/**").permitAll()
                         // 其他接口需要认证
                         .anyRequest().authenticated()
                 )

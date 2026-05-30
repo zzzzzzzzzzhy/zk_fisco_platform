@@ -3,11 +3,12 @@
  * 用法: npx hardhat run scripts/deploy-local.js --network localhost
  *
  * 会依次部署:
- *   1. MockWEEToken           (本地测试代币)
- *   2. ForumTokenExtension    (论坛激励合约)
- *   3. ContentShareRegistry   (内容存证合约)
- *   4. MockRiscZeroVerifier   (ZK 证明 Mock 验证器，仅本地用)
- *   5. RewardGovernor         (链上奖励参数治理合约)
+ *   1. MockWEEToken                (本地测试代币)
+ *   2. ForumTokenExtension         (论坛激励合约)
+ *   3. ContentShareRegistry        (内容存证合约)
+ *   4. MockRiscZeroVerifier        (ZK 证明 Mock 验证器，仅本地用)
+ *   5. RewardGovernor              (链上奖励参数治理合约)
+ *   6. CompetitionCommitRegistry   (竞赛得分承诺 + ZK 排名证明合约)
  *
  * 部署完成后自动写入 deployments/local.json 和 frontend/.env.local
  */
@@ -78,6 +79,16 @@ async function main() {
   await rewardGovernor.addVoter(deployer.address);
   console.log("✅ 部署者已注册为投票人:", deployer.address);
 
+  // 6. 部署 CompetitionCommitRegistry（竞赛得分承诺 + ZK 排名证明）
+  // imageId 全零在 MockRiscZeroVerifier 下始终通过；生产部署时替换为真实 IMAGE_ID
+  console.log("\n[6/6] 部署 CompetitionCommitRegistry...");
+  const CommitRegistry = await ethers.getContractFactory("CompetitionCommitRegistry");
+  const ZERO_IMAGE_ID  = ethers.zeroPadBytes("0x00", 32);
+  const commitRegistry = await CommitRegistry.deploy(deployer.address, mockVerifierAddress, ZERO_IMAGE_ID);
+  await commitRegistry.waitForDeployment();
+  const commitRegistryAddress = await commitRegistry.getAddress();
+  console.log("✅ CompetitionCommitRegistry:", commitRegistryAddress);
+
   // 保存部署结果
   const deployment = {
     network: "localhost",
@@ -90,6 +101,7 @@ async function main() {
       contentShareRegistry: contentShareAddress,
       mockRiscZeroVerifier: mockVerifierAddress,
       rewardGovernor: governorAddress,
+      competitionCommitRegistry: commitRegistryAddress,
     }
   };
 
@@ -122,6 +134,7 @@ BLOCKCHAIN_FORUM_TOKEN_EXTENSION_ADDRESS=${forumAddress}
 BLOCKCHAIN_CONTENT_SHARE_REGISTRY_ADDRESS=${contentShareAddress}
 BLOCKCHAIN_ROLLUP_REGISTRY_ADDRESS=${mockVerifierAddress}
 BLOCKCHAIN_REWARD_GOVERNOR_ADDRESS=${governorAddress}
+BLOCKCHAIN_COMMIT_REGISTRY_ADDRESS=${commitRegistryAddress}
 # 填入 Hardhat Account #0 的私钥（npx hardhat node 启动后终端可见）
 BLOCKCHAIN_ADMIN_PRIVATE_KEY=
 `;
