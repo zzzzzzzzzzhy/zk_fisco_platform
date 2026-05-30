@@ -122,8 +122,8 @@ BLOCKCHAIN_FORUM_TOKEN_EXTENSION_ADDRESS=${forumAddress}
 BLOCKCHAIN_CONTENT_SHARE_REGISTRY_ADDRESS=${contentShareAddress}
 BLOCKCHAIN_ROLLUP_REGISTRY_ADDRESS=${mockVerifierAddress}
 BLOCKCHAIN_REWARD_GOVERNOR_ADDRESS=${governorAddress}
-# Hardhat 默认账户 #0 私钥（仅用于本地测试）
-BLOCKCHAIN_ADMIN_PRIVATE_KEY=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
+# 填入 Hardhat Account #0 的私钥（npx hardhat node 启动后终端可见）
+BLOCKCHAIN_ADMIN_PRIVATE_KEY=
 `;
   const backendEnvPath = path.join(__dirname, "../../.env.backend.local");
   fs.writeFileSync(backendEnvPath, backendEnv);

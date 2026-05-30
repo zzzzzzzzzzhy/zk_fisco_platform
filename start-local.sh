@@ -118,7 +118,8 @@ if [ -f "$BLOCKCHAIN_DIR/deployments/local.json" ]; then
   export BLOCKCHAIN_WEE_TOKEN_ADDRESS="$WEE_ADDR"
   export BLOCKCHAIN_FORUM_TOKEN_EXTENSION_ADDRESS="$FORUM_ADDR"
   export BLOCKCHAIN_CONTENT_SHARE_REGISTRY_ADDRESS="$CONTENT_ADDR"
-  export BLOCKCHAIN_ADMIN_PRIVATE_KEY="0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
+  # 从 local.json 读取部署者地址，私钥由用户在 .env 中配置（本地 Hardhat 用 Account #0）
+  export BLOCKCHAIN_ADMIN_PRIVATE_KEY="${BLOCKCHAIN_ADMIN_PRIVATE_KEY:-}"
   info "合约地址已加载:
     WEE Token:           $WEE_ADDR
     ForumTokenExtension: $FORUM_ADDR

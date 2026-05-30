@@ -1,7 +1,7 @@
 const { ethers } = require('ethers');
 
 // 配置
-const PRIVATE_KEY = 'b5a5c7ae3324e465ea7439806a0ed17abcdc2a59b048604951b9df08bd9b682c';
+const PRIVATE_KEY = process.env.PRIVATE_KEY;
 const RPC_URL = 'https://rpc-amoy.polygon.technology/';
 const FORUM_TOKEN_ADDRESS = '0xFd6396cA4aAcd6081EC15EA88D1bFFfde7334634';
 const USER_ADDRESS = '0xda3680d36411c6a72d21d9a2809deaff2c6e2a6e';
