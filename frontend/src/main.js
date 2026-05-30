@@ -11,21 +11,6 @@ import VueVirtualScroller from 'vue-virtual-scroller'
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
 import errorHandler from './utils/errorHandler'
 
-// 在开发环境下导入调试工具
-if (process.env.NODE_ENV === 'development') {
-  import('./utils/web3Debug').then(() => {
-    console.log('🔧 Web3 调试工具已加载')
-  })
-
-  import('./utils/debugAuth').then(() => {
-    console.log('🔧 认证调试工具已加载')
-  })
-}
-
-// 导入钱包状态管理器
-import('./utils/walletStateManager').then(() => {
-  console.log('🌐 钱包状态管理器已加载')
-})
 
 Vue.config.productionTip = false
 
