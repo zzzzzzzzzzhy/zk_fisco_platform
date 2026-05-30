@@ -1,7 +1,0 @@
-{
-  "dependencies": {
-    "crypto-js": "^4.2.0",
-    "keccak": "^3.0.4",
-    "web3": "^4.16.0"
-  }
-}
