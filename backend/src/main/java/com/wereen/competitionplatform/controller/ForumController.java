@@ -12,6 +12,7 @@ import com.wereen.competitionplatform.service.ForumCommentService;
 import com.wereen.competitionplatform.service.ForumPostService;
 import com.wereen.competitionplatform.service.RewardEventService;
 import com.wereen.competitionplatform.service.WeeBalanceService;
+import com.wereen.competitionplatform.util.JwtUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,7 @@ public class ForumController {
     private final ForumCommentService forumCommentService;
     private final RewardEventService rewardEventService;
     private final WeeBalanceService weeBalanceService;
+    private final JwtUtil jwtUtil;
     private final ObjectMapper objectMapper;
 
     /**
@@ -207,14 +209,11 @@ public class ForumController {
                 ((org.springframework.web.context.request.ServletRequestAttributes)
                  org.springframework.web.context.request.RequestContextHolder.currentRequestAttributes())
                 .getRequest();
-
-            String userIdHeader = request.getHeader("X-User-Id");
-            if (userIdHeader != null && !userIdHeader.isEmpty()) {
-                return Long.parseLong(userIdHeader);
+            String bearer = request.getHeader("Authorization");
+            if (bearer != null && bearer.startsWith("Bearer ")) {
+                return jwtUtil.getUserIdFromToken(bearer.substring(7));
             }
-
-            String devUserId = System.getProperty("dev.userId", "1");
-            return Long.parseLong(devUserId);
+            return null;
         } catch (Exception e) {
             return null;
         }
