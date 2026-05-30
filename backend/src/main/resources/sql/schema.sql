@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS `users` (
 -- 竞赛表
 CREATE TABLE IF NOT EXISTS `competitions` (
     `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
-    `title` VARCHAR(200) NOT NULL COMMENT '竞赛标题',
+    `title` VARCHAR(200) NOT NULL DEFAULT '' COMMENT '竞赛标题',
     `description` TEXT COMMENT '竞赛简介',
     `detail` LONGTEXT COMMENT '赛题详情',
     `data_description` TEXT COMMENT '数据说明',
