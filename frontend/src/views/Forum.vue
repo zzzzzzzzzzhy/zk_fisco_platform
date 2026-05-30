@@ -172,10 +172,17 @@
         <aside class="insight-column">
           <section class="insight-card surface-card web3-card" ref="tokenCenterCard">
             <div class="insight-header">
-              <p class="eyebrow">Web3 激励</p>
+              <p class="eyebrow">积分激励</p>
               <strong>WEE 签到中心</strong>
             </div>
-            <ForumTokenBalance />
+            <div class="wee-center">
+              <WeeBalance style="margin-bottom: 16px;" />
+              <ul class="reward-list">
+                <li><span class="reward-tag">+10</span> 发布帖子</li>
+                <li><span class="reward-tag">+2</span> 发表评论</li>
+                <li><span class="reward-tag">+5</span> 每日签到</li>
+              </ul>
+            </div>
           </section>
 
           <section class="insight-card surface-card token-guide-card">
@@ -473,13 +480,13 @@ import {
   submitCommentConsent
 } from '@/api/forum'
 import { getCompetitions } from '@/api/competition'
-import ForumTokenBalance from '@/components/ForumToken/ForumTokenBalance.vue'
+import WeeBalance from '@/components/WeeBalance.vue'
 import web3Service from '@/utils/web3'
 
 export default {
   name: 'ForumPage',
   components: {
-    ForumTokenBalance
+    WeeBalance
   },
   data() {
     return {
@@ -1504,6 +1511,38 @@ export default {
 
 .web3-card .el-alert {
   border-radius: 16px;
+}
+
+.wee-center {
+  padding: 8px 0;
+}
+
+.reward-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.reward-list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #606266;
+}
+
+.reward-tag {
+  background: #f0f4ff;
+  color: #5b4cfa;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 12px;
+  min-width: 36px;
+  text-align: center;
 }
 
 @media (max-width: 1024px) {
