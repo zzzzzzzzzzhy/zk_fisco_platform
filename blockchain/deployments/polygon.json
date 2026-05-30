@@ -1,0 +1,17 @@
+{
+  "network": "polygon",
+  "contractAddress": "0x682334Cb94Fcf243944f6507E4A40bd52e74F65B",
+  "mtkTokenAddress": "0xd8C0C9E22295a0bB1ff28854B361F8925f8743BB",
+  "deployer": "0xeFdf04EbFD9DcFae3886A2d7E04B0bEdbe3E68f2",
+  "deployTransaction": "0x19f561e1f0555dc758e6ebdf296de00f61571f3b9e65964c505c71016aceb4b5",
+  "blockNumber": 79899569,
+  "gasUsed": "0",
+  "timestamp": "2025-12-05T03:09:45.252Z",
+  "rewardConfig": {
+    "postReward": "10.0",
+    "commentReward": "2.0",
+    "dailyCheckinReward": "5.0",
+    "featuredPostReward": "50.0",
+    "consecutiveBonus": "30.0"
+  }
+}

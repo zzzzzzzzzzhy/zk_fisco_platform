@@ -1,0 +1,17 @@
+{
+  "network": "hardhat",
+  "contractAddress": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+  "mtkTokenAddress": "0x2A252B89915708C6Be863D4110a4E05e9437e3b0",
+  "deployer": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+  "deployTransaction": "0xce43d59e797952d645d34ab8798cd0836929779b307574b6ba6457ffb12a3b05",
+  "blockNumber": 1,
+  "gasUsed": "0",
+  "timestamp": "2025-11-12T05:15:12.919Z",
+  "rewardConfig": {
+    "postReward": "10.0",
+    "commentReward": "2.0",
+    "dailyCheckinReward": "5.0",
+    "featuredPostReward": "50.0",
+    "consecutiveBonus": "30.0"
+  }
+}

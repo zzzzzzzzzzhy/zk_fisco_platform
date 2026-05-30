@@ -1,0 +1,9 @@
+{
+  "network": "amoy",
+  "contractAddress": "0x003DDCCe5dBf8127365E2eA0Ed96809F6CFd72FD",
+  "deployer": "0xeFdf04EbFD9DcFae3886A2d7E04B0bEdbe3E68f2",
+  "deployTransaction": "0x7731025501541b8500dbbb3e81a83dd7b3c611c04b29d1f9da0f0de7e690e52d",
+  "blockNumber": 29284792,
+  "gasUsed": "884141",
+  "timestamp": "2025-11-20T08:33:36.537Z"
+}

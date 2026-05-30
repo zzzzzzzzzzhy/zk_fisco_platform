@@ -1,0 +1,53 @@
+# Polygon Amoy 测试网配置
+blockchain:
+  polygon:
+    rpc-url: https://rpc-amoy.polygon.technology
+    rpc-urls: https://rpc-amoy.polygon.technology
+    chain-id: 80002  # Amoy 测试网
+    gas-price-gwei: 50  # 测试网可以用较高的gas price
+    gas-limit: 500000
+    max-fee-cap-gwei: 3500
+    max-priority-fee-cap-gwei: 3500
+
+  # 测试网代币地址（需要重新部署）
+  mtk:
+    token-address: ${WEE_TOKEN_ADDRESS:}
+
+  forum-token:
+    extension-address: ${FORUM_TOKEN_EXTENSION_ADDRESS:}
+
+  content-share:
+    registry-address: ${CONTENT_SHARE_REGISTRY_ADDRESS:}
+
+  # ZK-Rollup 测试网合约（待部署）
+  rollup:
+    registry-address: ${ROLLUP_REGISTRY_ADDRESS:}
+    reward-distributor-address: ${ROLLUP_REWARD_DISTRIBUTOR_ADDRESS:}
+    image-id: ${ROLLUP_IMAGE_ID:}
+    prover-cmd: ${ROLLUP_PROVER_CMD:${RUST_DIR:/data/rust}/host/target/release/rollup-prove}
+    prover-timeout-seconds: 300
+    proof-base-dir: proofs/rollup
+    enabled: false
+    window-minutes: 120
+    cron: "0 0 * * * ?"
+    submit-cron: "0 */5 * * * ?"
+
+  reward-governor:
+    address: ${REWARD_GOVERNOR_ADDRESS:}
+
+# Rollup 奖励配置
+reward:
+  rollup:
+    enabled: false
+    window-minutes: 120
+    prover-cmd: ${ROLLUP_PROVER_CMD:${RUST_DIR:/data/rust}/host/target/release/rollup-prove}
+    prover-timeout-seconds: 300
+    proof-base-dir: proofs/rollup
+    work-dir: /tmp/risc0-work
+
+# 日志配置
+logging:
+  level:
+    com.wereen.competitionplatform.service.BlockchainService: DEBUG
+    com.wereen.competitionplatform.service.RewardEventRollupService: DEBUG
+    com.wereen.competitionplatform.service.RewardProofGeneratorService: DEBUG

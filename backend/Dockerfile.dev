@@ -1,0 +1,40 @@
+# 后端开发模式 Dockerfile
+# 使用 Maven 构建，支持代码挂载和热重载
+#
+# 使用方式：
+# 1. 代码挂载后，如果配置了 Spring Boot DevTools，会自动重启
+# 2. 如果没有 DevTools，可以手动重启容器：docker compose restart app
+
+FROM eclipse-temurin:17-jre
+
+WORKDIR /app
+
+# 复制 pom.xml，利用 Docker 缓存
+COPY pom.xml .
+
+# 先下载依赖（只有 pom.xml 变化时才重新执行）
+# 使用阿里云 Maven 镜像加速
+RUN mvn dependency:go-offline -B \
+    -Dmaven.repo.local=/root/.m2/repository \
+    || true
+
+# 复制源代码
+COPY src ./src
+
+# 构建 JAR（但允许通过挂载覆盖）
+RUN mvn clean package -DskipTests -B || true
+
+EXPOSE 8080
+# Spring Boot DevTools LiveReload（如果配置了 DevTools）
+EXPOSE 35729
+
+# 开发模式：支持热重载（如果配置了 Spring Boot DevTools）
+# 如果没有 DevTools，代码挂载后需要手动重启容器
+ENTRYPOINT ["java", \
+            "-Djava.net.preferIPv4Stack=true", \
+            "-Djava.net.preferIPv6Addresses=false", \
+            "-Djava.security.egd=file:/dev/./urandom", \
+            "-jar", \
+            "-Dspring.profiles.active=dev", \
+            "/app/target/competition-platform.jar"]
+

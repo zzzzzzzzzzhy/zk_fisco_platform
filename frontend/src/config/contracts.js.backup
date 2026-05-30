@@ -1,0 +1,63 @@
+// 智能合约配置文件
+export const CONTRACT_CONFIG = {
+  // 开发环境配置
+  development: {
+    // WEE Token (Amoy)
+    mtkTokenAddress: process.env.VUE_APP_WEE_TOKEN_ADDRESS || '0xae51580da0C57714904d0B37E5793bF09f743811',
+    tokenSymbol: process.env.VUE_APP_TOKEN_SYMBOL || 'WEE',
+    tokenName: process.env.VUE_APP_TOKEN_NAME || 'WEE Token',
+    forumTokenAddress: process.env.VUE_APP_FORUM_TOKEN_ADDRESS || '0x34Af5079D6393DD42Ef0C74894c3Cf49C6D483eF',
+    chainId: 80002,
+    chainName: 'Polygon Amoy Testnet',
+    rpcUrls: [
+      'https://polygon-amoy.g.alchemy.com/v2/CAAJfdYK27RlkX58d0Tw3',
+      'https://rpc-amoy.polygon.technology/',
+      'https://polygon-amoy.drpc.org'
+    ],
+    blockExplorerUrls: ['https://amoy.polygonscan.com/'],
+    nativeCurrency: {
+      name: 'MATIC',
+      symbol: 'MATIC',
+      decimals: 18
+    }
+  },
+
+  // 生产环境配置
+  production: {
+    mtkTokenAddress: process.env.VUE_APP_WEE_TOKEN_ADDRESS || '0x3b90669eB9960d1e65D3A09097a9363Df74783DD',
+    tokenSymbol: process.env.VUE_APP_TOKEN_SYMBOL || 'WEE',
+    tokenName: process.env.VUE_APP_TOKEN_NAME || 'WEE Token',
+    forumTokenAddress: process.env.VUE_APP_FORUM_TOKEN_ADDRESS || '0x41F6E878b1eeDe1bF146D285B65eA6BC6199D026',
+    chainId: 137,
+    chainName: 'Polygon Mainnet',
+    rpcUrls: [
+      'https://polygon-mainnet.g.alchemy.com/v2/CAAJfdYK27RlkX58d0Tw3',
+      'https://polygon-rpc.com/',
+      'https://polygon-mainnet.drpc.org'
+    ],
+    blockExplorerUrls: ['https://polygonscan.com/'],
+    nativeCurrency: {
+      name: 'MATIC',
+      symbol: 'MATIC',
+      decimals: 18
+    }
+  }
+}
+
+// 获取当前环境配置
+export function getCurrentConfig() {
+  const env = process.env.NODE_ENV || 'production'
+  return CONTRACT_CONFIG[env] || CONTRACT_CONFIG.development
+}
+
+// 验证合约地址
+export function validateContractAddress(address) {
+  if (!address || typeof address !== 'string') {
+    return false
+  }
+  // 以太坊地址正则表达式
+  return /^0x[a-fA-F0-9]{40}$/.test(address)
+}
+
+// 默认导出当前配置
+export default getCurrentConfig()

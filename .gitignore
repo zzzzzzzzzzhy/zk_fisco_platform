@@ -1,0 +1,92 @@
+HELP.md
+target/
+.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### VS Code ###
+.vscode/
+
+# -------- Build artifacts --------
+backend/target/
+blockchain/cache/
+blockchain/artifacts/
+blockchain/typechain-types/
+
+# -------- Node dependencies --------
+node_modules/
+frontend/node/
+
+# -------- Binaries (large, not in VCS) --------
+minio/minio
+minio/mc
+minio/data/
+backend/prover/r0vm
+backend/prover/rollup-prove
+docker/prover/
+
+# -------- FISCO BCOS node (contains private keys, 3GB+) --------
+fisco/nodes/
+fisco/nodes_ecdsa_backup_20251126_084712/
+fisco/tassl
+fisco/tassl.tar.gz
+
+# -------- Secrets & environment files --------
+.env
+.env.backend.local
+backend/src/main/resources/application-local.yml
+docker/.env
+
+# -------- Generated local deployment addresses --------
+# frontend/.env.local 由 deploy-local.js 自动生成，不纳入版本管理
+frontend/.env.local
+
+# -------- Logs --------
+*.log
+nohup.out
+logs/
+build.log
+docker/build.log
+
+# -------- Misc debug / test files --------
+backend/test-config.java
+backend/PolygonTest.java
+backend/test-content-reward.js
+backend/check_comment_reward.sh
+backend/check_startup_logs.sh
+frontend/debug-rewards.html
+frontend/check_checkin_status.html
+backend/src/main/resources/application.yml.bak
+backend/src/main/resources/application.yml.backup
+
+# -------- Zone identifiers (WSL artifact) --------
+*.Zone.Identifier
+*:Zone.Identifier
+
+# Maven local repository (too large, not in VCS)
+.m2/

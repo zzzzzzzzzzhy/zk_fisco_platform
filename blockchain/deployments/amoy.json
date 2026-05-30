@@ -1,0 +1,17 @@
+{
+  "network": "amoy",
+  "contractAddress": "0x34Af5079D6393DD42Ef0C74894c3Cf49C6D483eF",
+  "mtkTokenAddress": "0xae51580da0C57714904d0B37E5793bF09f743811",
+  "deployer": "0xeFdf04EbFD9DcFae3886A2d7E04B0bEdbe3E68f2",
+  "deployTransaction": "0x8d85bf4f2efe00f90eee0c88a9ce0741d23664eb48b7b630cca778907cca0be0",
+  "blockNumber": 29285254,
+  "gasUsed": "2755285",
+  "timestamp": "2025-11-20T08:41:30.000Z",
+  "rewardConfig": {
+    "postReward": "10.0",
+    "commentReward": "2.0",
+    "dailyCheckinReward": "5.0",
+    "featuredPostReward": "50.0",
+    "consecutiveBonus": "30.0"
+  }
+}

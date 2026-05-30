@@ -1,0 +1,311 @@
+/**
+ * 后台管理UI设计系统
+ * 统一的颜色、字体、间距、阴影等设计规范
+ */
+
+// ===== 颜色系统 =====
+:root {
+  // 主色调
+  --primary-color: #5b4cfa;
+  --primary-hover: #4a3de8;
+  --primary-active: #3930d7;
+  --primary-light: rgba(91, 76, 250, 0.1);
+
+  // 辅助色
+  --secondary-color: #6157ff;
+  --accent-color: #c26bff;
+
+  // 功能色
+  --success-color: #67c23a;
+  --warning-color: #e6a23c;
+  --danger-color: #f56c6c;
+  --info-color: #909399;
+
+  // 中性色
+  --text-primary: #303133;
+  --text-regular: #606266;
+  --text-secondary: #909399;
+  --text-placeholder: #c0c4cc;
+
+  // 背景色
+  --bg-primary: #ffffff;
+  --bg-secondary: #f5f7fa;
+  --bg-tertiary: #f0f2f5;
+  --bg-overlay: rgba(0, 0, 0, 0.65);
+
+  // 边框色
+  --border-light: #ebeef5;
+  --border-base: #dcdfe6;
+  --border-dark: #c0c4cc;
+
+  // 阴影
+  --shadow-light: 0 2px 12px rgba(0, 0, 0, 0.06);
+  --shadow-base: 0 2px 12px rgba(0, 0, 0, 0.08);
+  --shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.12);
+  --shadow-modal: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+// ===== SCSS 变量 =====
+// 字体
+$font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+$font-family-mono: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+
+// 字体大小
+$font-size-xs: 12px;
+$font-size-sm: 14px;
+$font-size-base: 16px;
+$font-size-lg: 18px;
+$font-size-xl: 20px;
+$font-size-2xl: 24px;
+$font-size-3xl: 32px;
+
+// 字体权重
+$font-weight-normal: 400;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+
+// 边框半径
+$border-radius-sm: 4px;
+$border-radius-md: 8px;
+$border-radius-lg: 12px;
+$border-radius-xl: 16px;
+$border-radius-full: 9999px;
+
+// 间距
+$spacing-xxs: 2px;
+$spacing-xs: 4px;
+$spacing-sm: 8px;
+$spacing-md: 16px;
+$spacing-lg: 24px;
+$spacing-xl: 32px;
+$spacing-2xl: 48px;
+$spacing-3xl: 64px;
+
+// 过渡
+$transition-base: 0.2s ease;
+
+// Z-index
+$z-index-modal: 1000;
+$z-index-modal-backdrop: 999;
+$z-index-sticky: 100;
+
+// Flexbox mixins
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@mixin flex-center-column {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+@mixin button-reset {
+  border: none;
+  background: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  font: inherit;
+}
+
+// 响应式 mixins
+@mixin respond-to($breakpoint) {
+  @if $breakpoint == sm {
+    @media (max-width: 576px) { @content; }
+  }
+  @if $breakpoint == md {
+    @media (max-width: 768px) { @content; }
+  }
+  @if $breakpoint == lg {
+    @media (max-width: 992px) { @content; }
+  }
+  @if $breakpoint == xl {
+    @media (max-width: 1200px) { @content; }
+  }
+}
+
+// 确保全局应用这些变量
+body {
+  --primary-color: #5b4cfa;
+  --primary-hover: #4a3de8;
+  --primary-active: #3930d7;
+  --primary-light: rgba(91, 76, 250, 0.1);
+}
+
+// ===== 字体系统 =====
+$font-family: 'Helvetica Neue', Arial, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+
+// 字体大小
+$font-size-xs: 12px;
+$font-size-sm: 14px;
+$font-size-base: 16px;
+$font-size-lg: 18px;
+$font-size-xl: 20px;
+$font-size-2xl: 24px;
+$font-size-3xl: 30px;
+$font-size-4xl: 36px;
+
+// 行高
+$line-height-tight: 1.2;
+$line-height-base: 1.5;
+$line-height-relaxed: 1.8;
+
+// 字重
+$font-weight-normal: 400;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+
+// ===== 间距系统 =====
+$spacing-xs: 4px;
+$spacing-sm: 8px;
+$spacing-md: 16px;
+$spacing-lg: 24px;
+$spacing-xl: 32px;
+$spacing-2xl: 48px;
+$spacing-3xl: 64px;
+
+// ===== 圆角系统 =====
+$border-radius-sm: 4px;
+$border-radius-base: 8px;
+$border-radius-lg: 12px;
+$border-radius-xl: 16px;
+$border-radius-2xl: 24px;
+$border-radius-full: 50%;
+
+// ===== 过渡动画 =====
+$transition-fast: 0.2s ease;
+$transition-base: 0.3s ease;
+$transition-slow: 0.5s ease;
+
+// ===== 布局系统 =====
+$header-height: 60px;
+$sidebar-width: 200px;
+$sidebar-collapsed-width: 64px;
+$container-max-width: 1400px;
+
+// ===== 断点系统 =====
+$breakpoint-xs: 480px;
+$breakpoint-sm: 768px;
+$breakpoint-md: 992px;
+$breakpoint-lg: 1200px;
+$breakpoint-xl: 1600px;
+
+// ===== Z-index 层级 =====
+$z-index-dropdown: 1000;
+$z-index-sticky: 1010;
+$z-index-fixed: 1020;
+$z-index-modal-backdrop: 1030;
+$z-index-modal: 1040;
+$z-index-popover: 1050;
+$z-index-tooltip: 1060;
+
+// ===== 通用 Mixins =====
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@mixin text-ellipsis {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+@mixin text-ellipsis-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@mixin card-shadow {
+  box-shadow: var(--shadow-base);
+  transition: box-shadow $transition-base;
+
+  &:hover {
+    box-shadow: var(--shadow-hover);
+  }
+}
+
+@mixin button-reset {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  outline: none;
+}
+
+@mixin scrollbar {
+  &::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+    border-radius: $border-radius-sm;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--border-base);
+    border-radius: $border-radius-sm;
+
+    &:hover {
+      background: var(--border-dark);
+    }
+  }
+}
+
+// ===== 响应式 Mixins =====
+@mixin respond-to($breakpoint) {
+  @if $breakpoint == xs {
+    @media (max-width: $breakpoint-xs) { @content; }
+  }
+  @if $breakpoint == sm {
+    @media (max-width: $breakpoint-sm) { @content; }
+  }
+  @if $breakpoint == md {
+    @media (max-width: $breakpoint-md) { @content; }
+  }
+  @if $breakpoint == lg {
+    @media (max-width: $breakpoint-lg) { @content; }
+  }
+  @if $breakpoint == xl {
+    @media (max-width: $breakpoint-xl) { @content; }
+  }
+}
+
+@mixin respond-above($breakpoint) {
+  @if $breakpoint == sm {
+    @media (min-width: $breakpoint-sm + 1) { @content; }
+  }
+  @if $breakpoint == md {
+    @media (min-width: $breakpoint-md + 1) { @content; }
+  }
+  @if $breakpoint == lg {
+    @media (min-width: $breakpoint-lg + 1) { @content; }
+  }
+  @if $breakpoint == xl {
+    @media (min-width: $breakpoint-xl + 1) { @content; }
+  }
+}

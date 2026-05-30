@@ -1,0 +1,11 @@
+fisco:
+  enabled: false
+
+jwt:
+  # 测试环境用的简单密钥（长度需要 >= 32 字节，满足 HMAC 要求）
+  secret: "test-jwt-secret-for-local-tests-123456"
+  # 过期时间（毫秒），这里设为 1 天
+  expiration: 86400000
+
+
+

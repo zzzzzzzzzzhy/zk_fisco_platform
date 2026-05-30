@@ -1,0 +1,11 @@
+{
+  "network": "amoy",
+  "tokenAddress": "0xae51580da0C57714904d0B37E5793bF09f743811",
+  "symbol": "WEE",
+  "deployer": "0xeFdf04EbFD9DcFae3886A2d7E04B0bEdbe3E68f2",
+  "deployTransaction": "0x2fa49b20407afd8fe98488b762a2234ba15252b57c42336699ee980146ae6e16",
+  "blockNumber": 29285240,
+  "gasUsed": "1049294",
+  "timestamp": "2025-11-20T08:39:30.000Z",
+  "initialSupply": "1000000"
+}

@@ -1,0 +1,278 @@
+package com.wereen.competitionplatform.controller;
+
+import com.wereen.competitionplatform.common.Result;
+import com.wereen.competitionplatform.model.entity.TokenReward;
+import com.wereen.competitionplatform.service.ForumTokenService;
+import com.wereen.competitionplatform.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.math.BigDecimal;
+import java.util.List;
+
+/**
+ * 论坛代币控制器
+ * 处理论坛相关的代币操作
+ */
+@Slf4j
+@RestController
+@RequestMapping("/api/forum/token")
+@Tag(name = "论坛代币管理", description = "论坛代币相关接口")
+public class ForumTokenController {
+
+    @Autowired
+    private ForumTokenService forumTokenService;
+
+    @Autowired
+    private UserService userService;
+
+    /**
+     * 获取用户代币余额
+     */
+    @GetMapping("/balance")
+    @Operation(summary = "获取用户代币余额", description = "获取当前用户的MTK代币余额")
+    public Result<BigDecimal> getUserTokenBalance() {
+        Long userId = getCurrentUserId();
+        BigDecimal balance = forumTokenService.getUserTokenBalance(userId);
+        return Result.success(balance);
+    }
+
+    /**
+     * 每日签到
+     */
+    @PostMapping("/daily-checkin")
+    @Operation(summary = "每日签到", description = "用户每日签到获得代币奖励")
+    public Result<Boolean> dailyCheckin() {
+        Long userId = getCurrentUserId();
+        return forumTokenService.dailyCheckin(userId);
+    }
+
+    /**
+     * 检查今日是否可以签到
+     */
+    @GetMapping("/can-checkin")
+    @Operation(summary = "检查签到状态", description = "检查用户今日是否可以签到")
+    public Result<Boolean> canCheckinToday() {
+        Long userId = getCurrentUserId();
+        boolean canCheckin = forumTokenService.canCheckinToday(userId);
+        return Result.success(canCheckin);
+    }
+
+    /**
+     * 获取用户奖励信息
+     */
+    @GetMapping("/reward-info")
+    @Operation(summary = "获取用户奖励信息", description = "获取用户的奖励统计信息")
+    public Result<ForumTokenService.ForumRewardInfo> getUserRewardInfo() {
+        Long userId = getCurrentUserId();
+        ForumTokenService.ForumRewardInfo rewardInfo = forumTokenService.getUserRewardInfo(userId);
+        return Result.success(rewardInfo);
+    }
+
+    /**
+     * 获取奖励记录
+     */
+    @GetMapping("/reward-history")
+    @Operation(summary = "获取奖励记录", description = "分页获取用户的代币奖励记录")
+    public Result<PageResult<TokenReward>> getRewardHistory(
+            @RequestParam(defaultValue = "1") Integer current,
+            @RequestParam(defaultValue = "10") Integer size) {
+
+        Long userId = getCurrentUserId();
+        PageResult<TokenReward> result = forumTokenService.getUserRewardHistory(userId, current, size);
+        return Result.success(result);
+    }
+
+    /**
+     * 发布帖子奖励（内部接口）
+     */
+    @PostMapping("/internal/reward-post")
+    @Operation(summary = "发布帖子奖励", description = "为用户发放发布帖子的代币奖励（内部接口）")
+    public Result<String> rewardPost(@RequestParam Long userId, @RequestParam String postId) {
+        forumTokenService.rewardPost(userId, postId);
+        return Result.success("奖励发放中");
+    }
+
+    /**
+     * 发布评论奖励（内部接口）
+     */
+    @PostMapping("/internal/reward-comment")
+    @Operation(summary = "发布评论奖励", description = "为用户发放发布评论的代币奖励（内部接口）")
+    public Result<String> rewardComment(@RequestParam Long userId, @RequestParam String commentId) {
+        forumTokenService.rewardComment(userId, commentId);
+        return Result.success("奖励发放中");
+    }
+
+    /**
+     * 精华帖子奖励
+     */
+    @PostMapping("/internal/reward-featured-post")
+    @Operation(summary = "精华帖子奖励", description = "为精华帖子发放额外奖励（管理员接口）")
+    public Result<String> rewardFeaturedPost(@RequestParam Long userId, @RequestParam String postId) {
+        forumTokenService.rewardFeaturedPost(userId, postId);
+        return Result.success("精华帖子奖励发放中");
+    }
+
+    /**
+     * 获取代币使用说明
+     */
+    @GetMapping("/usage-guide")
+    @Operation(summary = "获取代币使用说明", description = "获取MTK代币的获得方式和使用场景说明")
+    public Result<TokenUsageGuide> getTokenUsageGuide() {
+        TokenUsageGuide guide = TokenUsageGuide.builder()
+                .earnWays(List.of(
+                        TokenUsageItem.builder()
+                                .icon("📝")
+                                .title("发布帖子")
+                                .description("发布优质帖子可获得 10 MTK 奖励")
+                                .reward("10 MTK")
+                                .build(),
+                        TokenUsageItem.builder()
+                                .icon("💬")
+                                .title("发表评论")
+                                .description("发布有价值评论可获得 2 MTK 奖励")
+                                .reward("2 MTK")
+                                .build(),
+                        TokenUsageItem.builder()
+                                .icon("📅")
+                                .title("每日签到")
+                                .description("每日签到可获得 5 MTK，连续签到有额外奖励")
+                                .reward("5+ MTK")
+                                .build(),
+                        TokenUsageItem.builder()
+                                .icon("⭐")
+                                .title("精华帖子")
+                                .description("帖子被选为精华可获得 50 MTK 额外奖励")
+                                .reward("50 MTK")
+                                .build()
+                ))
+                .useWays(List.of(
+                        TokenUsageItem.builder()
+                                .icon("📚")
+                                .title("购买竞赛资料")
+                                .description("使用MTK购买高质量竞赛数据集和学习资料")
+                                .cost("100-500 MTK")
+                                .build(),
+                        TokenUsageItem.builder()
+                                .icon("🎯")
+                                .title("竞赛报名优惠")
+                                .description("使用200 MTK可抵扣10%竞赛报名费用")
+                                .cost("200 MTK")
+                                .build(),
+                        TokenUsageItem.builder()
+                                .icon("📌")
+                                .title("帖子置顶")
+                                .description("花费300 MTK将帖子置顶3天，增加曝光")
+                                .cost("300 MTK")
+                                .build(),
+                        TokenUsageItem.builder()
+                                .icon("🔍")
+                                .title("高级功能")
+                                .description("解锁高级搜索、无限制评论等特权功能")
+                                .cost("50 MTK/月")
+                                .build()
+                ))
+                .tokenInfo(TokenInfo.builder()
+                        .name("My Token")
+                        .symbol("MTK")
+                        .contractAddress("0x2A252B89915708C6Be863D4110a4E05e9437e3b0")
+                        .network("Polygon Amoy 测试网")
+                        .decimals(18)
+                        .build())
+                .build();
+
+        return Result.success(guide);
+    }
+
+    /**
+     * 获取论坛代币统计
+     */
+    @GetMapping("/statistics")
+    @Operation(summary = "获取代币统计", description = "获取论坛代币的统计数据")
+    public Result<ForumTokenStatistics> getTokenStatistics() {
+        ForumTokenStatistics statistics = forumTokenService.getForumTokenStatistics();
+        return Result.success(statistics);
+    }
+
+    // 私有方法
+
+    /**
+     * 获取当前用户ID
+     */
+    private Long getCurrentUserId() {
+        // 这里应该从JWT Token中获取用户ID
+        // 暂时返回一个默认值
+        return 1L;
+    }
+
+    // 内部类定义
+
+    /**
+     * 代币使用指南
+     */
+    @lombok.Data
+    @lombok.Builder
+    public static class TokenUsageGuide {
+        private List<TokenUsageItem> earnWays;
+        private List<TokenUsageItem> useWays;
+        private TokenInfo tokenInfo;
+    }
+
+    /**
+     * 代币使用项目
+     */
+    @lombok.Data
+    @lombok.Builder
+    public static class TokenUsageItem {
+        private String icon;
+        private String title;
+        private String description;
+        private String reward;    // 获得数量
+        private String cost;      // 消费数量
+    }
+
+    /**
+     * 代币信息
+     */
+    @lombok.Data
+    @lombok.Builder
+    public static class TokenInfo {
+        private String name;
+        private String symbol;
+        private String contractAddress;
+        private String network;
+        private Integer decimals;
+    }
+
+    /**
+     * 论坛代币统计
+     */
+    @lombok.Data
+    @lombok.Builder
+    public static class ForumTokenStatistics {
+        private BigDecimal totalSupply;          // 总供应量
+        private BigDecimal totalCirculation;      // 流通量
+        private BigDecimal totalRewarded;         // 总奖励数量
+        private Long totalUsers;                  // 持币用户数
+        private Long todayRewards;                // 今日奖励数量
+        private Long todayActiveUsers;            // 今日活跃用户数
+        private BigDecimal averageBalance;        // 平均持币数量
+    }
+
+    /**
+     * 分页结果
+     */
+    @lombok.Data
+    @lombok.AllArgsConstructor
+    @lombok.NoArgsConstructor
+    public static class PageResult<T> {
+        private List<T> records;
+        private Long total;
+        private Integer current;
+        private Integer size;
+        private Integer pages;
+    }
+}

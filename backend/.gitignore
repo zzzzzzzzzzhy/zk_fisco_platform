@@ -1,0 +1,32 @@
+# 区块链账户私钥 - 绝对不要提交！
+src/main/resources/account/
+*.pem
+*.p12
+*.key
+
+# 测试文件
+src/main/java/com/wereen/competitionplatform/test/
+
+# Maven
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# IDE
+.idea/
+*.iml
+*.iws
+.vscode/
+.classpath
+.project
+.settings/
+
+# 日志文件
+*.log
+logs/
+
+# 临时文件
+*.tmp
+*.swp
+*~

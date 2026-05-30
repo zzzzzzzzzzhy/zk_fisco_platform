@@ -1,0 +1,256 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+spring:
+  application:
+    name: competition-platform
+
+  # Database configuration
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    # 这里连的是 docker 容器 competition-mysql，映射到宿主机 3307 端口
+    url: ${DB_URL:jdbc:mysql://localhost:3306/competition_platform?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:}
+    hikari:
+      minimum-idle: 5
+      maximum-pool-size: 20
+      idle-timeout: 600000
+      connection-timeout: 30000
+      max-lifetime: 1800000
+
+  # Redis configuration (Spring Boot uses prefix spring.data.redis)
+  data:
+    redis:
+      host: ${SPRING_REDIS_HOST:localhost}
+      port: ${SPRING_REDIS_PORT:6379}
+      database: ${SPRING_REDIS_DATABASE:1}
+      username: ${SPRING_REDIS_USERNAME:default}
+      password: ${SPRING_REDIS_PASSWORD:}
+      timeout: 10000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+          max-wait: -1ms
+          time-between-eviction-runs: 30000ms
+        shutdown-timeout: 100ms
+
+  # File upload configuration
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 500MB
+      max-request-size: 500MB
+
+  # Jackson 日期时间格式配置
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+    serialization:
+      write-dates-as-timestamps: false
+
+# MyBatis-Plus configuration
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/**/*.xml
+  type-aliases-package: com.wereen.competitionplatform.model.entity
+  configuration:
+    map-underscore-to-camel-case: true
+    cache-enabled: false
+    # log-impl: org.apache.ibatis.logging.stdout.StdOutImpl  # 注释掉以隐藏 SQL 日志
+  global-config:
+    db-config:
+      id-type: auto
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+
+# Storage provider selection: minio | ipfs
+storage:
+  provider: ${STORAGE_PROVIDER:minio}
+
+# IPFS/4Everland configuration
+ipfs:
+  endpoint: ${IPFS_ENDPOINT:https://endpoint.4everland.co}
+  access-key: ${IPFS_ACCESS_KEY:}
+  secret-key: ${IPFS_SECRET_KEY:}
+  bucket-name: ${IPFS_BUCKET:12-11}
+  # 4Everland S3 兼容接口对 region 比较敏感；默认使用 us-east-1（可通过 IPFS_REGION 覆盖）
+  region: ${IPFS_REGION:us-east-1}
+  # 4Everland public gateway for accessing files
+  public-gateway: ${IPFS_PUBLIC_GATEWAY:https://ipfs.4everland.co}
+
+# MinIO configuration (fallback)
+minio:
+  endpoint: http://127.0.0.1:9000
+  # 对外可访问的 MinIO 地址（浏览器直连用），未设置时回退到 endpoint
+  public-endpoint: ${MINIO_PUBLIC_ENDPOINT:}
+  console-url: http://127.0.0.1:9001
+  access-key: minioadmin
+  secret-key: minioadmin
+  bucket-name: competition-platform
+  buckets:
+    datasets: datasets
+    submissions: submissions
+    eval-logs: eval-logs
+    reports: reports
+    content-share: content-share
+
+# JWT configuration
+jwt:
+  secret: your-256-bit-secret-key-please-change-in-production-env-for-security
+  expiration: 86400000
+  refresh-expiration: 604800000
+
+# Redis Streams configuration
+redis-streams:
+  consumer-group: competition-platform-group
+  consumer-name: consumer-1
+  streams:
+    upload-precheck: tasks:upload_precheck
+    chain-evidence: tasks:chain_evidence
+    evaluate: tasks:evaluate
+    leaderboard-freeze: tasks:leaderboard_freeze
+    prize-bookkeeping: tasks:prize_bookkeeping
+    withdraw-apply: tasks:withdraw_apply
+    withdraw-payout: tasks:withdraw_payout
+    reconcile: tasks:reconcile
+    notify: tasks:notify
+
+# File Precheck Configuration
+file-precheck:
+  enabled: true
+  hash-algorithm: SHA256
+  max-file-size: 500
+  buffer-size: 8192
+  timeout: 600
+  max-archive-files: 1000
+  max-archive-depth: 5
+  max-decompressed-size: 2048
+  temp-dir: ${java.io.tmpdir}/precheck
+  allowed-extensions:
+    - pdf
+    - doc
+    - docx
+    - xls
+    - xlsx
+    - ppt
+    - pptx
+    - rtf
+    - txt
+    - csv
+    - jpg
+    - jpeg
+    - png
+    - gif
+    - bmp
+    - tiff
+    - tif
+    - webp
+    - svg
+    - zip
+    - rar
+    - 7z
+    - tar
+    - gz
+    - py
+    - java
+    - c
+    - cpp
+    - cxx
+    - cc
+    - h
+    - hpp
+    - js
+    - json
+    - html
+    - htm
+    - css
+    - xml
+    - sql
+    - sh
+    - bash
+    - sol
+    - ts
+    - jsx
+    - tsx
+    - vue
+    - php
+    - rb
+    - go
+    - rs
+    - swift
+    - kt
+    - scala
+    - pl
+    - r
+    - m
+    - mat
+    - pyc
+  virus-scan:
+    enabled: false
+    engine: clamav
+    timeout: 300
+
+# Polygon Blockchain configuration（全局使用 Polygon 主网 + 新的 ForumTokenExtension 地址）
+blockchain:
+  polygon:
+    # 本地开发默认使用 Hardhat 节点；生产环境通过 POLYGON_RPC_URL 覆盖
+    rpc-url: ${POLYGON_RPC_URL:http://127.0.0.1:8545}
+    rpc-urls: ${POLYGON_RPC_URL:http://127.0.0.1:8545}
+    chain-id: ${POLYGON_CHAIN_ID:31337}
+    gas-price-gwei: ${POLYGON_GAS_PRICE_GWEI:1}
+    gas-mode: ${POLYGON_GAS_MODE:legacy}
+    max-priority-fee-gwei: ${POLYGON_MAX_PRIORITY_FEE_GWEI:1}
+    max-fee-cap-gwei: ${POLYGON_MAX_FEE_CAP_GWEI:10}
+    max-priority-fee-cap-gwei: ${POLYGON_MAX_PRIORITY_FEE_CAP_GWEI:10}
+  mtk:
+    # 由 blockchain/scripts/deploy-local.js 部署后填写
+    token-address: ${BLOCKCHAIN_WEE_TOKEN_ADDRESS:}
+  forum-token:
+    extension-address: ${BLOCKCHAIN_FORUM_TOKEN_EXTENSION_ADDRESS:}
+  content-share:
+    registry-address: ${BLOCKCHAIN_CONTENT_SHARE_REGISTRY_ADDRESS:}
+  rollup:
+    registry-address: ${BLOCKCHAIN_ROLLUP_REGISTRY_ADDRESS:}
+    reward-distributor-address: ${BLOCKCHAIN_ROLLUP_REWARD_DISTRIBUTOR_ADDRESS:}
+    image-id: ${BLOCKCHAIN_ROLLUP_IMAGE_ID:}
+  reward-governor:
+    address: ${BLOCKCHAIN_REWARD_GOVERNOR_ADDRESS:}
+  admin:
+    private-key: ${BLOCKCHAIN_ADMIN_PRIVATE_KEY:}
+
+reward:
+  rollup:
+    enabled: false
+    window-minutes: 10
+    cron: "0 */10 * * * ?"
+    submit-cron: "0 */10 * * * ?"
+    distribute-cron: "0 */10 * * * ?"
+    pending-grace-minutes: 20
+    retry-minutes: 20
+    proof-base-dir: "proofs/rollup"
+    log-file: "docs/rollup-execution.log"
+    prover-cmd: ${REWARD_ROLLUP_PROVER_CMD:/app/prover/rollup-prove}
+    work-dir: ${REWARD_ROLLUP_WORK_DIR:}
+    cancel-tx-hashes: ${REWARD_ROLLUP_CANCEL_TX_HASHES:}
+    cancel-nonce-range: ${REWARD_ROLLUP_CANCEL_NONCE_RANGE:}
+    prover-timeout-seconds: 900
+
+# FISCO BCOS configuration
+fisco:
+  enabled: ${FISCO_ENABLED:false}
+  config-file: config.toml
+  group-id: 1
+  contract-address: 4e1d507c83ab8359392fc4e85c02c696fcc097e6
+  current-account: 0x1cadfbc03bd63e8d37e7f7fcd7d88300a4fa755b
+
+## 旧的 FISCO 配置（已合并到上方 fisco 节中，如需备用请手动切换）
+#fisco:
+#  config-file: config.toml
+#  group-id: 1
+#  contract-address: a73046bac2ec6b98dad00ebca326ae173e9b60ec
+#  current-account: 0x752d5728bc74270032dcc8d5b4b5748b6d4b0dff

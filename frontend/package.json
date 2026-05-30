@@ -1,0 +1,61 @@
+{
+  "name": "competition-platform-frontend",
+  "version": "1.0.0",
+  "description": "Competition Platform Frontend",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint"
+  },
+  "dependencies": {
+    "@metamask/detect-provider": "^2.0.0",
+    "axios": "^1.6.2",
+    "dayjs": "^1.11.18",
+    "element-ui": "^2.15.14",
+    "ethers": "^5.8.0",
+    "hls.js": "^1.5.17",
+    "video.js": "^8.19.0",
+    "vue": "^2.6.14",
+    "vue-lazyload": "^3.0.0",
+    "vue-puzzle-vcode": "^1.1.10",
+    "vue-router": "^3.5.1",
+    "vue-virtual-scroller": "^1.1.2",
+    "vuex": "^3.6.2",
+    "web3": "^4.16.0"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "~5.0.0",
+    "@vue/cli-plugin-eslint": "~5.0.0",
+    "@vue/cli-plugin-router": "~5.0.0",
+    "@vue/cli-plugin-vuex": "~5.0.0",
+    "@vue/cli-service": "~5.0.0",
+    "babel-eslint": "^10.1.0",
+    "eslint": "^7.32.0",
+    "eslint-plugin-vue": "^8.0.3",
+    "file-loader": "^6.2.0",
+    "sass": "^1.32.7",
+    "sass-loader": "^12.0.0",
+    "url-loader": "^4.1.1",
+    "vue-template-compiler": "^2.6.14"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "extends": [
+      "plugin:vue/essential",
+      "eslint:recommended"
+    ],
+    "parserOptions": {
+      "parser": "babel-eslint"
+    },
+    "rules": {}
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead"
+  ]
+}

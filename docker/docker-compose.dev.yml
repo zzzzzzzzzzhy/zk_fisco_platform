@@ -1,0 +1,59 @@
+# 开发模式 Docker Compose 配置
+# 使用方式：docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+# 
+# 特点：
+# 1. 后端代码挂载，支持热重载（需要 Spring Boot DevTools）
+# 2. 前端代码挂载，使用开发服务器（npm run serve）
+# 3. 利用 Docker 缓存，只重新构建变化的层
+
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile.dev
+    volumes:
+      # 挂载源代码目录（用于热重载）
+      - ../backend/src:/app/src:rw
+      # 挂载 target 目录（如果使用 DevTools，可以自动重启）
+      - ../backend/target:/app/target:rw
+      # 挂载 Maven 本地仓库缓存（加速构建）
+      - ~/.m2:/root/.m2:ro
+    environment:
+      # 开发模式：启用 Spring Boot DevTools
+      SPRING_DEVTOOLS_RESTART_ENABLED: "true"
+      SPRING_DEVTOOLS_LIVERELOAD_ENABLED: "true"
+      # 开发模式配置
+      SPRING_PROFILES_ACTIVE: dev
+    # 开发模式：暴露更多端口（如 DevTools 的 LiveReload 端口 35729）
+    ports:
+      - "8080:8080"
+      - "35729:35729"
+
+  frontend:
+    build:
+      context: ../frontend
+      # 开发模式：使用开发版 Dockerfile
+      dockerfile: Dockerfile.dev
+    volumes:
+      # 挂载源代码目录
+      - ../frontend/src:/app/src:rw
+      - ../frontend/public:/app/public:rw
+      - ../frontend/package.json:/app/package.json:ro
+      - ../frontend/vue.config.js:/app/vue.config.js:ro
+      # 挂载 node_modules（避免在容器内重新安装）
+      - frontend-node-modules:/app/node_modules
+    environment:
+      # Vue CLI 开发模式
+      NODE_ENV: development
+      VUE_APP_IPFS_PUBLIC_GATEWAY: ${IPFS_PUBLIC_GATEWAY:-https://ipfs.4everland.io}
+      VUE_APP_API_PROXY_TARGET: http://host.docker.internal:8082
+      VUE_APP_COFFEE_API_PROXY_TARGET: http://host.docker.internal:9090
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "8086:8080"  # Vue CLI 默认开发端口是 8080
+
+volumes:
+  frontend-node-modules:

@@ -1,0 +1,12 @@
+{
+  "network": "polygon",
+  "contract": "ContentShareRegistry",
+  "address": "0x477c1FC569eCefE56a4e3D54616CC83AFB7d02E3",
+  "deployer": "0xeFdf04EbFD9DcFae3886A2d7E04B0bEdbe3E68f2",
+  "txHash": "0x3d2cb1877e3fb5dca13c12c7ec301c700c0d5b3f69fad11892bca464c97c9473",
+  "timestamp": "2025-11-21T06:49:30.085Z",
+  "gas": {
+    "maxFeePerGas": "200000000000",
+    "maxPriorityFeePerGas": "50000000000"
+  }
+}

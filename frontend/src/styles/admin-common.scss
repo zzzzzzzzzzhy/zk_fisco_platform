@@ -1,0 +1,455 @@
+/**
+ * 后台管理页面通用样式
+ * 适用于所有管理页面的卡片、表格、按钮等组件
+ */
+
+@import './admin-design-system.scss';
+
+// ===== 页面容器 =====
+.admin-page {
+  max-width: var(--container-max-width);
+  margin: 0 auto;
+  padding: 0;
+}
+
+// ===== 页面头部 =====
+.page-header {
+  @include flex-between;
+  margin-bottom: var(--spacing-xl);
+  padding: var(--spacing-lg) var(--spacing-xl);
+  background: var(--bg-primary);
+  border-radius: var(--border-radius-xl);
+  box-shadow: var(--shadow-light);
+
+  h2 {
+    margin: 0;
+    font-size: $font-size-3xl;
+    font-weight: $font-weight-bold;
+    color: var(--text-primary);
+    position: relative;
+    padding-left: var(--spacing-lg);
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 6px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+      border-radius: $border-radius-sm;
+    }
+  }
+
+  .el-button {
+    border-radius: $border-radius-lg;
+    padding: var(--spacing-sm) var(--spacing-lg);
+    font-weight: $font-weight-medium;
+    transition: all $transition-base;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-base);
+    }
+  }
+
+  @include respond-to(sm) {
+    flex-direction: column;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+
+    h2 {
+      font-size: $font-size-2xl;
+    }
+  }
+
+  &.hero-card {
+    background: linear-gradient(120deg, #6f5bff 0%, #5b4cfa 45%, #1b1f4b 100%);
+    color: #fff;
+    box-shadow: 0 18px 38px rgba(33, 26, 87, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    position: relative;
+    overflow: hidden;
+
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.25), transparent 40%);
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    > * {
+      position: relative;
+      z-index: 2;
+    }
+
+    h2 {
+      color: #fff;
+
+      &::before {
+        background: rgba(255, 255, 255, 0.8);
+      }
+    }
+
+    p,
+    small {
+      color: rgba(255, 255, 255, 0.85);
+    }
+
+    .el-button {
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.35);
+      box-shadow: none;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.25);
+        box-shadow: none;
+      }
+    }
+
+    .page-header__actions {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      gap: var(--spacing-sm);
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .metrics-row {
+      position: relative;
+      z-index: 2;
+
+      .metric-item {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(255, 255, 255, 0.2);
+
+        .metric-label,
+        small {
+          color: rgba(255, 255, 255, 0.78);
+        }
+
+        .metric-number {
+          color: #fff;
+        }
+      }
+    }
+  }
+}
+
+// ===== 筛选区域 =====
+.filter-section {
+  background: var(--bg-primary);
+  padding: var(--spacing-lg) var(--spacing-xl);
+  border-radius: var(--border-radius-xl);
+  box-shadow: var(--shadow-light);
+  margin-bottom: var(--spacing-xl);
+
+  .el-select,
+  .el-input,
+  .el-date-picker {
+    width: 200px;
+    margin-right: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+
+    &:last-child {
+      margin-right: 0;
+    }
+  }
+
+  @include respond-to(sm) {
+    padding: var(--spacing-md);
+
+    .el-select,
+    .el-input,
+    .el-date-picker {
+      width: 100%;
+      margin-right: 0;
+    }
+  }
+}
+
+// ===== 数据表格容器 =====
+.data-table-container {
+  background: var(--bg-primary);
+  border-radius: var(--border-radius-xl);
+  box-shadow: var(--shadow-light);
+  overflow: hidden;
+  margin-bottom: var(--spacing-xl);
+
+  .table-header {
+    @include flex-between;
+    padding: var(--spacing-lg) var(--spacing-xl);
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-light);
+
+    .table-title {
+      font-size: $font-size-lg;
+      font-weight: $font-weight-semibold;
+      color: var(--text-primary);
+    }
+
+    .table-actions {
+      @include flex-center;
+      gap: var(--spacing-sm);
+    }
+  }
+}
+
+// ===== 优化的表格样式 =====
+.el-table {
+  border: none !important;
+  border-radius: 0 !important;
+
+  :deep(.el-table__header-wrapper) {
+    background: var(--bg-secondary);
+
+    th {
+      background: var(--bg-secondary) !important;
+      color: var(--text-primary) !important;
+      font-weight: $font-weight-semibold !important;
+      border-bottom: 2px solid var(--border-base) !important;
+      padding: var(--spacing-lg) var(--spacing-md) !important;
+      font-size: $font-size-sm;
+    }
+  }
+
+  :deep(.el-table__body-wrapper) {
+    tr {
+      transition: background-color $transition-fast;
+
+      &:hover {
+        background-color: var(--bg-secondary) !important;
+      }
+    }
+
+    td {
+      padding: var(--spacing-lg) var(--spacing-md) !important;
+      border-bottom: 1px solid var(--border-light) !important;
+      color: var(--text-regular);
+    }
+  }
+
+  :deep(.el-table__empty-block) {
+    padding: var(--spacing-2xl);
+    color: var(--text-secondary);
+    font-size: $font-size-base;
+  }
+}
+
+// ===== 状态标签 =====
+.status-tag {
+  &.status-draft {
+    background: var(--info-color);
+    color: var(--bg-primary);
+  }
+
+  &.status-registration {
+    background: var(--primary-color);
+    color: var(--bg-primary);
+  }
+
+  &.status-ongoing {
+    background: var(--success-color);
+    color: var(--bg-primary);
+  }
+
+  &.status-ended {
+    background: var(--text-secondary);
+    color: var(--bg-primary);
+  }
+
+  &.status-cancelled {
+    background: var(--danger-color);
+    color: var(--bg-primary);
+  }
+
+  &.status-pending {
+    background: var(--warning-color);
+    color: var(--bg-primary);
+  }
+}
+
+// ===== 操作按钮组 =====
+.table-actions-group {
+  @include flex-center;
+  gap: var(--spacing-xs);
+
+  .el-button {
+    min-width: 32px;
+    padding: var(--spacing-xs);
+    border-radius: $border-radius-base;
+    font-size: $font-size-sm;
+    transition: all $transition-fast;
+
+    &.el-button--text {
+      color: var(--text-secondary);
+
+      &:hover {
+        color: var(--primary-color);
+        background: var(--primary-light);
+      }
+
+      &.danger {
+        &:hover {
+          color: var(--danger-color);
+          background: rgba(245, 108, 108, 0.1);
+        }
+      }
+
+      &.success {
+        &:hover {
+          color: var(--success-color);
+          background: rgba(103, 194, 58, 0.1);
+        }
+      }
+    }
+  }
+
+  @include respond-to(sm) {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+  }
+}
+
+// ===== 分页组件 =====
+.pagination-container {
+  @include flex-center;
+  padding: var(--spacing-lg) var(--spacing-xl);
+  background: var(--bg-primary);
+  border-radius: var(--border-radius-xl);
+  box-shadow: var(--shadow-light);
+  margin-top: var(--spacing-lg);
+
+  .el-pagination {
+    :deep(.el-pager li) {
+      border-radius: $border-radius-base;
+      margin: 0 2px;
+    }
+
+    :deep(.el-pagination__total),
+    :deep(.el-pagination__sizes) {
+      color: var(--text-regular);
+    }
+  }
+}
+
+// ===== 统计卡片 =====
+.stats-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+
+  .stat-card {
+    background: var(--bg-primary);
+    padding: var(--spacing-lg);
+    border-radius: var(--border-radius-xl);
+    box-shadow: var(--shadow-light);
+    transition: all $transition-base;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-base);
+    }
+
+    .stat-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: $border-radius-lg;
+      @include flex-center;
+      margin-bottom: var(--spacing-md);
+      font-size: 20px;
+      color: var(--bg-primary);
+
+      &.primary { background: var(--primary-color); }
+      &.success { background: var(--success-color); }
+      &.warning { background: var(--warning-color); }
+      &.danger { background: var(--danger-color); }
+      &.info { background: var(--info-color); }
+    }
+
+    .stat-value {
+      font-size: $font-size-2xl;
+      font-weight: $font-weight-bold;
+      color: var(--text-primary);
+      margin-bottom: var(--spacing-xs);
+    }
+
+    .stat-label {
+      font-size: $font-size-sm;
+      color: var(--text-secondary);
+    }
+
+    @include respond-to(sm) {
+      padding: var(--spacing-md);
+    }
+  }
+}
+
+// ===== 空状态 =====
+.empty-state {
+  text-align: center;
+  padding: var(--spacing-3xl) var(--spacing-xl);
+
+  .empty-icon {
+    font-size: 64px;
+    color: var(--text-placeholder);
+    margin-bottom: var(--spacing-lg);
+  }
+
+  .empty-text {
+    font-size: $font-size-lg;
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-lg);
+  }
+
+  .empty-description {
+    font-size: $font-size-base;
+    color: var(--text-placeholder);
+    margin-bottom: var(--spacing-xl);
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: $line-height-relaxed;
+  }
+}
+
+// ===== 加载状态 =====
+.loading-container {
+  @include flex-center;
+  min-height: 200px;
+  background: var(--bg-primary);
+  border-radius: var(--border-radius-xl);
+  box-shadow: var(--shadow-light);
+}
+
+// ===== 响应式表格 =====
+@include respond-to(sm) {
+  .el-table {
+    :deep(.el-table__body-wrapper) {
+      .el-table__row {
+        td {
+          padding: var(--spacing-md) var(--spacing-sm) !important;
+          font-size: $font-size-xs;
+        }
+      }
+    }
+  }
+
+  .table-actions-group {
+    .el-button {
+      span {
+        display: none;
+      }
+
+      i {
+        margin: 0;
+      }
+    }
+  }
+}

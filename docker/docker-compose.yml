@@ -1,0 +1,256 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: ../backend
+    container_name: competition-backend
+    restart: unless-stopped
+    network_mode: host  # 使用宿主机网络，可以直接访问 FISCO 节点
+    volumes:
+      # 挂载 FISCO 配置文件（宿主机改配置，容器自动生效）
+      - ../backend/src/main/resources/config.toml:/app/config.toml:ro
+      # 挂载 FISCO SDK 证书（国密版）
+      - ../fisco/nodes/127.0.0.1/sdk:/app/fisco-sdk:ro
+      # 挂载 FISCO 账户文件（国密）
+      - ../backend/src/main/resources/account:/app/account:ro
+      # Rollup 执行日志输出
+      - ../docs:/app/docs:rw
+      # RISC0 Groth16 Docker 工作目录（容器内路径与宿主机一致）
+      - /data/Dapp_Share_Platform/competition-platform/docs:/data/Dapp_Share_Platform/competition-platform/docs:rw
+      # Rollup Prover 二进制文件
+      - ../backend/prover/rollup-prove:/app/prover/rollup-prove:ro
+      - ../backend/prover/r0vm:/app/prover/r0vm:ro
+      # 允许容器内调用宿主机 Docker（本地 Groth16 转换）
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      # 数据库配置（使用 localhost，因为 host 网络模式）
+      SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3307/competition_platform?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: zhy
+      SPRING_DATASOURCE_PASSWORD: zhy020313
+
+      # Redis 配置（使用 localhost，因为 host 网络模式）
+      SPRING_REDIS_HOST: localhost
+      SPRING_REDIS_PORT: 6379
+      SPRING_REDIS_DATABASE: 1
+      SPRING_REDIS_USERNAME: default
+      SPRING_REDIS_PASSWORD: zhy020313
+
+      # 存储配置 - IPFS/4Everland
+      STORAGE_PROVIDER: ipfs
+      IPFS_ENDPOINT: ${IPFS_ENDPOINT:-https://endpoint.4everland.co}
+      # 注意：密钥不要写在 compose 里，放到 docker/.env 或宿主机环境变量
+      IPFS_ACCESS_KEY: ${IPFS_ACCESS_KEY:-}
+      IPFS_SECRET_KEY: ${IPFS_SECRET_KEY:-}
+      IPFS_BUCKET: ${IPFS_BUCKET:-12-11}
+      IPFS_REGION: ${IPFS_REGION:-us-east-1}
+      IPFS_PUBLIC_GATEWAY: ${IPFS_PUBLIC_GATEWAY:-https://ipfs.4everland.co}
+
+      # MinIO 配置（备用）
+      MINIO_ENDPOINT: http://localhost:9000
+      MINIO_PUBLIC_ENDPOINT: http://13.229.248.211:9000
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+
+      # FISCO 配置（已挂载宿主机配置文件和证书）
+      FISCO_ENABLED: "true"
+      FISCO_CONFIG_FILE: /app/config.toml
+      FISCO_GROUP_ID: 1
+      FISCO_CONTRACT_ADDRESS: 4e1d507c83ab8359392fc4e85c02c696fcc097e6
+      FISCO_CURRENT_ACCOUNT: 0x1cadfbc03bd63e8d37e7f7fcd7d88300a4fa755b
+
+      # Polygon 区块链配置（Spring Boot 环境变量格式：大写+下划线）
+      BLOCKCHAIN_POLYGON_RPC_URL: ${POLYGON_RPC_URL:-https://polygon-rpc.com}
+      BLOCKCHAIN_POLYGON_GAS_PRICE_GWEI: ${POLYGON_GAS_PRICE_GWEI:-400}
+      BLOCKCHAIN_POLYGON_MAX_PRIORITY_FEE_GWEI: ${POLYGON_MAX_PRIORITY_FEE_GWEI:-100}
+      BLOCKCHAIN_POLYGON_GAS_MODE: ${POLYGON_GAS_MODE:-eip1559-fixed}
+      BLOCKCHAIN_POLYGON_GAS_STATION_TIER: ${POLYGON_GAS_STATION_TIER:-standard}
+      BLOCKCHAIN_REWARD-GOVERNOR_ADDRESS: "0x258fBD988B04F986cdE8fA3C52FD6031d544b3a7"
+      BLOCKCHAIN_ROLLUP_REGISTRY_ADDRESS: ${ROLLUP_REGISTRY_ADDRESS:-}
+      BLOCKCHAIN_ROLLUP_REWARD_DISTRIBUTOR_ADDRESS: ${ROLLUP_REWARD_DISTRIBUTOR_ADDRESS:-}
+      BLOCKCHAIN_ROLLUP_IMAGE_ID: ${ROLLUP_IMAGE_ID:-}
+      ROLLUP_IMAGE_ID: ${ROLLUP_IMAGE_ID:-}
+      REWARD_ROLLUP_PROVER_CMD: /app/prover/rollup-prove
+      REWARD_ROLLUP_PROVER_TIMEOUT_SECONDS: 900
+      REWARD_ROLLUP_LOG_FILE: /app/docs/rollup-execution.log
+      REWARD_ROLLUP_WORK_DIR: /data/Dapp_Share_Platform/competition-platform/docs/rollup-work
+      REWARD_ROLLUP_REPLACE_TX_HASHES: "0x8fe0718acf55a83db357dede533d96aa03c2bd930773e1e8e0a2aa4a7258fbf5"
+      REWARD_ROLLUP_CANCEL_TX_HASHES: "0x28f79f01fa3adba2e9bca26b86aff880b5c0c0c6c6d792ef4d89f3fdf3a7f7cb,0xe5b3ad27c8d2a5f30bedc5c6ec8b0f43f12a8e69aa812d325d6b4a7bf8c1be78"
+      REWARD_ROLLUP_CANCEL_NONCE_RANGE: "0xfa-0x10d"
+      REWARD_ROLLUP_CRON: "0 0 0 * * ?"
+      REWARD_ROLLUP_SUBMIT_CRON: "0 0 0 * * ?"
+      REWARD_ROLLUP_DISTRIBUTE_CRON: "0 0 0 * * ?"
+      REWARD_ROLLUP_PENDING_GRACE_MINUTES: "20"
+      REWARD_ROLLUP_RETRY_MINUTES: "20"
+      REWARD_ROLLUP_WINDOW_MINUTES: "1440"
+      REWARD_ROLLUP_ENABLED: "false"
+      RISC0_SERVER_PATH: /app/prover/r0vm
+      SERVER_PORT: "8082"
+
+      # 其它必要配置（和你 application.yml 中保持一致）
+      JWT_SECRET: your-256-bit-secret-key-please-change-in-production-env-for-security
+    # 注意：使用 host 网络模式时，不能使用 depends_on 和 networks
+    # 后端会直接通过 localhost:3307 和 localhost:6379 访问 MySQL 和 Redis
+
+  rollup-worker:
+    build:
+      context: ../backend
+    container_name: competition-rollup-worker
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - ../backend/src/main/resources/config.toml:/app/config.toml:ro
+      - ../fisco/nodes/127.0.0.1/sdk:/app/fisco-sdk:ro
+      - ../backend/src/main/resources/account:/app/account:ro
+      - ../docs:/app/docs:rw
+      - /data/Dapp_Share_Platform/competition-platform/docs:/data/Dapp_Share_Platform/competition-platform/docs:rw
+      - ../backend/prover/rollup-prove:/app/prover/rollup-prove:ro
+      - ../backend/prover/r0vm:/app/prover/r0vm:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3307/competition_platform?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: zhy
+      SPRING_DATASOURCE_PASSWORD: zhy020313
+
+      SPRING_REDIS_HOST: localhost
+      SPRING_REDIS_PORT: 6379
+      SPRING_REDIS_DATABASE: 1
+      SPRING_REDIS_USERNAME: default
+      SPRING_REDIS_PASSWORD: zhy020313
+
+      STORAGE_PROVIDER: ipfs
+      IPFS_ENDPOINT: ${IPFS_ENDPOINT:-https://endpoint.4everland.co}
+      IPFS_ACCESS_KEY: ${IPFS_ACCESS_KEY:-}
+      IPFS_SECRET_KEY: ${IPFS_SECRET_KEY:-}
+      IPFS_BUCKET: ${IPFS_BUCKET:-12-11}
+      IPFS_REGION: ${IPFS_REGION:-us-east-1}
+      IPFS_PUBLIC_GATEWAY: ${IPFS_PUBLIC_GATEWAY:-https://ipfs.4everland.co}
+
+      MINIO_ENDPOINT: http://localhost:9000
+      MINIO_PUBLIC_ENDPOINT: http://13.229.248.211:9000
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+
+      FISCO_ENABLED: "true"
+      FISCO_CONFIG_FILE: /app/config.toml
+      FISCO_GROUP_ID: 1
+      FISCO_CONTRACT_ADDRESS: 4e1d507c83ab8359392fc4e85c02c696fcc097e6
+      FISCO_CURRENT_ACCOUNT: 0x1cadfbc03bd63e8d37e7f7fcd7d88300a4fa755b
+
+      BLOCKCHAIN_POLYGON_RPC_URL: ${POLYGON_RPC_URL:-https://polygon-rpc.com}
+      BLOCKCHAIN_POLYGON_GAS_PRICE_GWEI: ${POLYGON_GAS_PRICE_GWEI:-400}
+      BLOCKCHAIN_POLYGON_MAX_PRIORITY_FEE_GWEI: ${POLYGON_MAX_PRIORITY_FEE_GWEI:-100}
+      BLOCKCHAIN_POLYGON_GAS_MODE: ${POLYGON_GAS_MODE:-eip1559-fixed}
+      BLOCKCHAIN_POLYGON_GAS_STATION_TIER: ${POLYGON_GAS_STATION_TIER:-standard}
+      BLOCKCHAIN_REWARD-GOVERNOR_ADDRESS: "0x258fBD988B04F986cdE8fA3C52FD6031d544b3a7"
+      BLOCKCHAIN_ROLLUP_REGISTRY_ADDRESS: ${ROLLUP_REGISTRY_ADDRESS:-}
+      BLOCKCHAIN_ROLLUP_REWARD_DISTRIBUTOR_ADDRESS: ${ROLLUP_REWARD_DISTRIBUTOR_ADDRESS:-}
+      BLOCKCHAIN_ROLLUP_IMAGE_ID: ${ROLLUP_IMAGE_ID:-}
+      ROLLUP_IMAGE_ID: ${ROLLUP_IMAGE_ID:-}
+      REWARD_ROLLUP_PROVER_CMD: /app/prover/rollup-prove
+      REWARD_ROLLUP_PROVER_TIMEOUT_SECONDS: 900
+      REWARD_ROLLUP_LOG_FILE: /app/docs/rollup-execution.log
+      REWARD_ROLLUP_WORK_DIR: /data/Dapp_Share_Platform/competition-platform/docs/rollup-work
+      REWARD_ROLLUP_REPLACE_TX_HASHES: "0x8fe0718acf55a83db357dede533d96aa03c2bd930773e1e8e0a2aa4a7258fbf5"
+      REWARD_ROLLUP_CANCEL_TX_HASHES: "0x28f79f01fa3adba2e9bca26b86aff880b5c0c0c6c6d792ef4d89f3fdf3a7f7cb,0xe5b3ad27c8d2a5f30bedc5c6ec8b0f43f12a8e69aa812d325d6b4a7bf8c1be78"
+      REWARD_ROLLUP_CANCEL_NONCE_RANGE: "0xfa-0x10d"
+      REWARD_ROLLUP_CRON: "0 0 0 * * ?"
+      REWARD_ROLLUP_SUBMIT_CRON: "0 0 0 * * ?"
+      REWARD_ROLLUP_DISTRIBUTE_CRON: "0 0 0 * * ?"
+      REWARD_ROLLUP_PENDING_GRACE_MINUTES: "20"
+      REWARD_ROLLUP_RETRY_MINUTES: "20"
+      REWARD_ROLLUP_WINDOW_MINUTES: "1440"
+      REWARD_ROLLUP_ENABLED: "false"
+      SPRING_MAIN_WEB_APPLICATION_TYPE: "none"
+      RISC0_SERVER_PATH: /app/prover/r0vm
+      SERVER_PORT: "8082"
+
+      JWT_SECRET: your-256-bit-secret-key-please-change-in-production-env-for-security
+
+  mysql:
+    image: mysql:8.0
+    container_name: competition-mysql
+    restart: unless-stopped
+    ports:
+      # 将容器的 3306 端口映射到宿主机 3307，避免与本机 MySQL 冲突
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: zhy020313
+      MYSQL_DATABASE: competition_platform
+      MYSQL_USER: zhy
+      MYSQL_PASSWORD: zhy020313
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pzhy020313"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: competition-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --requirepass zhy020313
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "zhy020313", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    networks:
+      - app-network
+
+  minio:
+    image: minio/minio:latest
+    container_name: competition-minio
+    restart: unless-stopped
+    # 仅在需要 MinIO 时启用：docker compose --profile minio up -d
+    profiles:
+      - minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio-data:/data
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  frontend:
+    build:
+      context: ../frontend
+      args:
+        VUE_APP_IPFS_PUBLIC_GATEWAY: ${IPFS_PUBLIC_GATEWAY:-https://ipfs.4everland.co}
+    container_name: competition-frontend
+    restart: unless-stopped
+    ports:
+      - "8086:80"
+    environment:
+      VUE_APP_IPFS_PUBLIC_GATEWAY: ${IPFS_PUBLIC_GATEWAY:-https://ipfs.4everland.co}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - app-network
+
+volumes:
+  mysql-data:
+  redis-data:
+  minio-data:
+
+networks:
+  app-network:
+    driver: bridge

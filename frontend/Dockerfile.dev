@@ -1,0 +1,21 @@
+# 前端开发模式 Dockerfile
+# 使用开发服务器，支持热重载
+
+FROM docker.1ms.run/node:18
+
+WORKDIR /app
+
+# 先复制 package.json，利用 Docker 缓存
+COPY package*.json ./
+
+# 安装依赖（只有 package.json 变化时才重新执行）
+RUN npm install
+
+# 允许通过环境变量注入 Vue 配置（开发服务器启动时读取）
+ENV VUE_APP_IPFS_PUBLIC_GATEWAY=${VUE_APP_IPFS_PUBLIC_GATEWAY}
+
+# 暴露 Vue CLI 开发服务器端口
+EXPOSE 8080
+
+# 启动开发服务器（支持热重载）
+CMD ["npm", "run", "serve", "--", "--host", "0.0.0.0", "--port", "8080"]
