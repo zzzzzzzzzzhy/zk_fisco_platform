@@ -13,6 +13,7 @@ import com.wereen.competitionplatform.service.ForumPostService;
 import com.wereen.competitionplatform.service.RewardEventService;
 import com.wereen.competitionplatform.service.WeeBalanceService;
 import com.wereen.competitionplatform.util.JwtUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
@@ -56,9 +57,15 @@ public class ForumController {
      * 创建帖子
      */
     @PostMapping("/posts")
-    public Result<ForumPost> createPost(@RequestBody ForumPostRequest request) {
+    public Result<ForumPost> createPost(@RequestBody ForumPostRequest request,
+                                         HttpServletRequest httpRequest) {
+        if (request.getAuthorId() == null) {
+            String bearer = httpRequest.getHeader("Authorization");
+            if (bearer != null && bearer.startsWith("Bearer ")) {
+                request.setAuthorId(jwtUtil.getUserIdFromToken(bearer.substring(7)));
+            }
+        }
         ForumPost post = forumPostService.createPost(request);
-        // 发帖奖励 WEE
         if (post.getAuthorId() != null) {
             weeBalanceService.addReward(post.getAuthorId(), WeeBalanceService.REWARD_POST, "发帖奖励");
         }
@@ -112,9 +119,16 @@ public class ForumController {
      * 创建评论
      */
     @PostMapping("/posts/{id}/comments")
-    public Result<ForumComment> createComment(@PathVariable Long id, @RequestBody ForumCommentRequest request) {
+    public Result<ForumComment> createComment(@PathVariable Long id,
+                                               @RequestBody ForumCommentRequest request,
+                                               HttpServletRequest httpRequest) {
+        if (request.getAuthorId() == null) {
+            String bearer = httpRequest.getHeader("Authorization");
+            if (bearer != null && bearer.startsWith("Bearer ")) {
+                request.setAuthorId(jwtUtil.getUserIdFromToken(bearer.substring(7)));
+            }
+        }
         ForumComment comment = forumCommentService.createComment(id, request);
-        // 评论奖励 WEE
         if (comment.getAuthorId() != null) {
             weeBalanceService.addReward(comment.getAuthorId(), WeeBalanceService.REWARD_COMMENT, "评论奖励");
         }

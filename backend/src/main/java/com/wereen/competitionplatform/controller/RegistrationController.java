@@ -4,6 +4,8 @@ import com.wereen.competitionplatform.common.Result;
 import com.wereen.competitionplatform.model.entity.Competition;
 import com.wereen.competitionplatform.model.entity.Registration;
 import com.wereen.competitionplatform.service.RegistrationService;
+import com.wereen.competitionplatform.util.JwtUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -19,12 +21,21 @@ import java.util.List;
 public class RegistrationController {
 
     private final RegistrationService registrationService;
+    private final JwtUtil jwtUtil;
 
     /**
      * 报名竞赛
      */
     @PostMapping
-    public Result<Registration> register(@RequestBody RegisterRequest request) {
+    public Result<Registration> register(@RequestBody RegisterRequest request,
+                                          HttpServletRequest httpRequest) {
+        // userId 优先从 JWT 取，兼容前端显式传的情况
+        if (request.getUserId() == null) {
+            String bearer = httpRequest.getHeader("Authorization");
+            if (bearer != null && bearer.startsWith("Bearer ")) {
+                request.setUserId(jwtUtil.getUserIdFromToken(bearer.substring(7)));
+            }
+        }
         Registration registration = registrationService.register(
                 request.getUserId(),
                 request.getCompetitionId(),

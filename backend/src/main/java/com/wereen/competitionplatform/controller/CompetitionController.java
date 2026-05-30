@@ -6,6 +6,8 @@ import com.wereen.competitionplatform.common.Result;
 import com.wereen.competitionplatform.common.UserRole;
 import com.wereen.competitionplatform.model.entity.Competition;
 import com.wereen.competitionplatform.service.CompetitionService;
+import com.wereen.competitionplatform.util.JwtUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,6 +22,7 @@ import java.util.List;
 public class CompetitionController {
 
     private final CompetitionService competitionService;
+    private final JwtUtil jwtUtil;
 
     /**
      * 获取竞赛列表（分页）
@@ -57,7 +60,13 @@ public class CompetitionController {
      */
     @PostMapping
     @RequireRole(UserRole.ADMIN)
-    public Result<Competition> createCompetition(@RequestBody Competition competition) {
+    public Result<Competition> createCompetition(@RequestBody Competition competition,
+                                                  HttpServletRequest request) {
+        String bearer = request.getHeader("Authorization");
+        if (bearer != null && bearer.startsWith("Bearer ")) {
+            Long userId = jwtUtil.getUserIdFromToken(bearer.substring(7));
+            competition.setCreatorId(userId);
+        }
         Competition created = competitionService.createCompetition(competition);
         return Result.success(created);
     }
