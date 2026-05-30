@@ -45,18 +45,6 @@
         </nav>
 
         <div class="user-actions">
-          <!-- 钱包状态同步按钮 (仅在开发环境显示) -->
-          <el-button
-            v-if="isDevelopment && showWalletSyncButton"
-            type="text"
-            icon="el-icon-refresh"
-            @click="manualSyncWallet"
-            size="small"
-            style="margin-right: 10px; color: #409EFF;"
-          >
-            同步钱包
-          </el-button>
-
           <template v-if="isLoggedIn">
             <el-dropdown @command="handleUserCommand">
               <span class="el-dropdown-link user-info">
@@ -106,53 +94,28 @@
       </div>
     </footer>
 
-    <!-- 全局钱包状态修复工具 -->
-    <WalletSyncFix />
   </div>
 </template>
 
 <script>
 import { mapGetters, mapActions } from 'vuex'
-import WalletSyncFix from '@/components/Web3/WalletSyncFix.vue'
-import { walletState, walletSync } from '@/store/wallet'
-
 export default {
   name: 'MainLayout',
-  components: {
-    WalletSyncFix
-  },
+  components: {},
   data() {
     return {
-      showWalletSyncButton: false,
       mobileMenuOpen: false
     }
   },
   computed: {
     ...mapGetters('user', ['isLoggedIn', 'username', 'userRole']),
-    isDevelopment() {
-      return process.env.NODE_ENV === 'development'
-    }
   },
   watch: {
-    // 监听路由变化，自动关闭移动端菜单
     '$route'() {
       this.mobileMenuOpen = false
     }
   },
-  mounted() {
-    // 检查是否显示钱包同步按钮
-    this.checkWalletSyncButton()
-
-    // 监听钱包状态变化
-    this.syncUnsubscribe = walletSync.subscribe(() => {
-      this.checkWalletSyncButton()
-    })
-  },
-  beforeDestroy() {
-    if (this.syncUnsubscribe) {
-      this.syncUnsubscribe()
-    }
-  },
+  mounted() {},
   methods: {
     ...mapActions('user', ['logout']),
     handleUserCommand(command) {
@@ -175,52 +138,6 @@ export default {
       }
     },
 
-    // 检查是否显示钱包同步按钮
-    checkWalletSyncButton() {
-      // 如果有地址但未连接，显示同步按钮
-      this.showWalletSyncButton = walletState.address && !walletState.isConnected
-    },
-
-    // 手动同步钱包
-    async manualSyncWallet() {
-      try {
-        this.$message.info('正在手动同步钱包状态...')
-
-        // 方法1: 使用增强钱包管理器
-        if (window.enhancedWalletManager) {
-          await window.enhancedWalletManager.forceGlobalSync()
-        }
-
-        // 方法2: 触发全局同步事件
-        await walletSync.emitChange('manual-sync', {
-          address: walletState.address,
-          timestamp: Date.now()
-        })
-
-        // 方法3: 使用调试工具
-        if (window.Web3Debugger) {
-          const result = await window.Web3Debugger.autoFixIssues()
-          if (result.success) {
-            console.log('🔧 调试工具修复结果:', result.fixes)
-          }
-        }
-
-        // 等待状态更新
-        setTimeout(() => {
-          this.checkWalletSyncButton()
-
-          if (!this.showWalletSyncButton) {
-            this.$message.success('钱包状态同步成功！')
-          } else {
-            this.$message.warning('状态同步可能未完全成功，请查看控制台')
-          }
-        }, 1000)
-
-      } catch (error) {
-        console.error('手动同步失败:', error)
-        this.$message.error(`同步失败: ${error.message}`)
-      }
-    }
   }
 }
 </script>
