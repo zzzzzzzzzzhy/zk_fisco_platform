@@ -26,15 +26,15 @@ services:
     environment:
       # 数据库配置（使用 localhost，因为 host 网络模式）
       SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3307/competition_platform?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
-      SPRING_DATASOURCE_USERNAME: zhy
-      SPRING_DATASOURCE_PASSWORD: zhy020313
+      SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
 
       # Redis 配置（使用 localhost，因为 host 网络模式）
       SPRING_REDIS_HOST: localhost
       SPRING_REDIS_PORT: 6379
       SPRING_REDIS_DATABASE: 1
       SPRING_REDIS_USERNAME: default
-      SPRING_REDIS_PASSWORD: zhy020313
+      SPRING_REDIS_PASSWORD: ${REDIS_PASSWORD}
 
       # 存储配置 - IPFS/4Everland
       STORAGE_PROVIDER: ipfs
@@ -48,9 +48,9 @@ services:
 
       # MinIO 配置（备用）
       MINIO_ENDPOINT: http://localhost:9000
-      MINIO_PUBLIC_ENDPOINT: http://13.229.248.211:9000
-      MINIO_ACCESS_KEY: minioadmin
-      MINIO_SECRET_KEY: minioadmin
+      MINIO_PUBLIC_ENDPOINT: ${MINIO_PUBLIC_ENDPOINT:-}
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-minioadmin}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-minioadmin}
 
       # FISCO 配置（已挂载宿主机配置文件和证书）
       FISCO_ENABLED: "true"
@@ -109,14 +109,14 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3307/competition_platform?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
-      SPRING_DATASOURCE_USERNAME: zhy
-      SPRING_DATASOURCE_PASSWORD: zhy020313
+      SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
 
       SPRING_REDIS_HOST: localhost
       SPRING_REDIS_PORT: 6379
       SPRING_REDIS_DATABASE: 1
       SPRING_REDIS_USERNAME: default
-      SPRING_REDIS_PASSWORD: zhy020313
+      SPRING_REDIS_PASSWORD: ${REDIS_PASSWORD}
 
       STORAGE_PROVIDER: ipfs
       IPFS_ENDPOINT: ${IPFS_ENDPOINT:-https://endpoint.4everland.co}
@@ -127,9 +127,9 @@ services:
       IPFS_PUBLIC_GATEWAY: ${IPFS_PUBLIC_GATEWAY:-https://ipfs.4everland.co}
 
       MINIO_ENDPOINT: http://localhost:9000
-      MINIO_PUBLIC_ENDPOINT: http://13.229.248.211:9000
-      MINIO_ACCESS_KEY: minioadmin
-      MINIO_SECRET_KEY: minioadmin
+      MINIO_PUBLIC_ENDPOINT: ${MINIO_PUBLIC_ENDPOINT:-}
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-minioadmin}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-minioadmin}
 
       FISCO_ENABLED: "true"
       FISCO_CONFIG_FILE: /app/config.toml
@@ -175,14 +175,14 @@ services:
       # 将容器的 3306 端口映射到宿主机 3307，避免与本机 MySQL 冲突
       - "3307:3306"
     environment:
-      MYSQL_ROOT_PASSWORD: zhy020313
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: competition_platform
-      MYSQL_USER: zhy
-      MYSQL_PASSWORD: zhy020313
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
     volumes:
       - mysql-data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pzhy020313"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -195,11 +195,11 @@ services:
     restart: unless-stopped
     ports:
       - "6379:6379"
-    command: redis-server --requirepass zhy020313
+    command: redis-server --requirepass ${REDIS_PASSWORD}
     volumes:
       - redis-data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "-a", "zhy020313", "ping"]
+      test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 3s
       retries: 3
@@ -217,8 +217,8 @@ services:
       - "9000:9000"
       - "9001:9001"
     environment:
-      MINIO_ROOT_USER: minioadmin
-      MINIO_ROOT_PASSWORD: minioadmin
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:-minioadmin}
     command: server /data --console-address ":9001"
     volumes:
       - minio-data:/data

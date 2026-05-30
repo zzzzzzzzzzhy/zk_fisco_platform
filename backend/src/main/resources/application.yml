@@ -89,8 +89,8 @@ minio:
   # 对外可访问的 MinIO 地址（浏览器直连用），未设置时回退到 endpoint
   public-endpoint: ${MINIO_PUBLIC_ENDPOINT:}
   console-url: http://127.0.0.1:9001
-  access-key: minioadmin
-  secret-key: minioadmin
+  access-key: ${MINIO_ACCESS_KEY:minioadmin}
+  secret-key: ${MINIO_SECRET_KEY:minioadmin}
   bucket-name: competition-platform
   buckets:
     datasets: datasets
