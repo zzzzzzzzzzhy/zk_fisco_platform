@@ -11,7 +11,7 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     # 这里连的是 docker 容器 competition-mysql，映射到宿主机 3307 端口
-    url: ${DB_URL:jdbc:mysql://localhost:3306/competition_platform?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true}
+    url: ${DB_URL:jdbc:mysql://localhost:3307/competition_platform?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true}
     username: ${DB_USERNAME:root}
     password: ${DB_PASSWORD:}
     hikari:
@@ -89,8 +89,8 @@ minio:
   # 对外可访问的 MinIO 地址（浏览器直连用），未设置时回退到 endpoint
   public-endpoint: ${MINIO_PUBLIC_ENDPOINT:}
   console-url: http://127.0.0.1:9001
-  access-key: ${MINIO_ACCESS_KEY:minioadmin}
-  secret-key: ${MINIO_SECRET_KEY:minioadmin}
+  access-key: minioadmin
+  secret-key: minioadmin
   bucket-name: competition-platform
   buckets:
     datasets: datasets
