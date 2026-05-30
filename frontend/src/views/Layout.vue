@@ -26,10 +26,7 @@
             <i class="el-icon-picture-outline-round"></i>
             内容分享
           </router-link>
-          <router-link to="/coffee-mapping" class="nav-item">
-            <i class="el-icon-s-shop"></i>
-            咖啡映射
-          </router-link>
+
           <router-link to="/governance" class="nav-item">
             <i class="el-icon-s-operation"></i>
             DAO 治理

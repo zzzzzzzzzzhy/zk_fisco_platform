@@ -30,12 +30,6 @@ const routes = [
         meta: { title: '内容分享' }
       },
       {
-        path: '/coffee-mapping',
-        name: 'CoffeeMapping',
-        component: () => import(/* webpackChunkName: "coffee" */ '@/views/CoffeeMapping.vue'),
-        meta: { title: '咖啡映射' }
-      },
-      {
         path: '/competitions/:id',
         name: 'CompetitionDetail',
         component: () => import('@/views/CompetitionDetail.vue'),
