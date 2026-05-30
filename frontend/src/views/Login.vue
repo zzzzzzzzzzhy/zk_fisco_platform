@@ -29,32 +29,6 @@
             />
           </el-form-item>
 
-          <div class="wallet-section">
-            <p class="wallet-section__label">连接钱包（可选）</p>
-            <meta-mask-connect
-              :show-balance-card="false"
-              @connected="handleWalletConnected"
-              @disconnected="handleWalletDisconnected"
-            />
-            <el-alert
-              v-if="walletAddress"
-              type="success"
-              :closable="false"
-              class="wallet-tip"
-              show-icon
-            >
-              <span>已连接钱包：{{ formatAddress(walletAddress) }}</span>
-            </el-alert>
-            <el-alert
-              v-else
-              type="info"
-              :closable="false"
-              class="wallet-tip"
-              show-icon
-            >
-              <span>不连接钱包也可登录，WEE 代币功能需要时再连接。</span>
-            </el-alert>
-          </div>
 
           <el-button
             type="primary"
@@ -78,54 +52,31 @@
 
 <script>
 import { mapActions } from 'vuex'
-import MetaMaskConnect from '@/components/Web3/MetaMaskConnect.vue'
 
 export default {
   name: 'UserLogin',
-  components: {
-    MetaMaskConnect
-  },
+  components: {},
   data() {
     return {
-      form: {
-        username: '',
-        password: ''
-      },
+      form: { username: '', password: '' },
       rules: {
-        username: [
-          { required: true, message: '请输入用户名', trigger: 'blur' }
-        ],
+        username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
         password: [
           { required: true, message: '请输入密码', trigger: 'blur' },
           { min: 6, message: '密码长度不能少于6位', trigger: 'blur' }
         ]
       },
-      walletAddress: '',
       loading: false
     }
   },
   methods: {
     ...mapActions('user', ['login']),
-    formatAddress(address) {
-      if (!address) return ''
-      return `${address.slice(0, 6)}...${address.slice(-4)}`
-    },
-    handleWalletConnected(payload) {
-      this.walletAddress = payload.address
-    },
-    handleWalletDisconnected() {
-      this.walletAddress = ''
-    },
     handleSubmit() {
       this.$refs.loginForm.validate(async (valid) => {
         if (!valid) return
-
         this.loading = true
         try {
-          await this.login({
-            ...this.form,
-            walletAddress: this.walletAddress
-          })
+          await this.login(this.form)
           this.$message.success({
             message: '登录成功！',
             duration: 1500

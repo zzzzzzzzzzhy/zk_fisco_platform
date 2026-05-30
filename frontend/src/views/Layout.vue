@@ -42,6 +42,7 @@
         </nav>
 
         <div class="user-actions">
+          <WeeBalance v-if="isLoggedIn" style="margin-right: 12px;" />
           <template v-if="isLoggedIn">
             <el-dropdown @command="handleUserCommand">
               <span class="el-dropdown-link user-info">
@@ -96,9 +97,10 @@
 
 <script>
 import { mapGetters, mapActions } from 'vuex'
+import WeeBalance from '@/components/WeeBalance.vue'
 export default {
   name: 'MainLayout',
-  components: {},
+  components: { WeeBalance },
   data() {
     return {
       mobileMenuOpen: false

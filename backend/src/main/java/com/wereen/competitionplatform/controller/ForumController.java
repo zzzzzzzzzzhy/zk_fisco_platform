@@ -11,6 +11,7 @@ import com.wereen.competitionplatform.model.entity.ForumPost;
 import com.wereen.competitionplatform.service.ForumCommentService;
 import com.wereen.competitionplatform.service.ForumPostService;
 import com.wereen.competitionplatform.service.RewardEventService;
+import com.wereen.competitionplatform.service.WeeBalanceService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +32,7 @@ public class ForumController {
     private final ForumPostService forumPostService;
     private final ForumCommentService forumCommentService;
     private final RewardEventService rewardEventService;
+    private final WeeBalanceService weeBalanceService;
     private final ObjectMapper objectMapper;
 
     /**
@@ -54,6 +56,10 @@ public class ForumController {
     @PostMapping("/posts")
     public Result<ForumPost> createPost(@RequestBody ForumPostRequest request) {
         ForumPost post = forumPostService.createPost(request);
+        // 发帖奖励 WEE
+        if (post.getAuthorId() != null) {
+            weeBalanceService.addReward(post.getAuthorId(), WeeBalanceService.REWARD_POST, "发帖奖励");
+        }
         return Result.success(post);
     }
 
@@ -106,6 +112,10 @@ public class ForumController {
     @PostMapping("/posts/{id}/comments")
     public Result<ForumComment> createComment(@PathVariable Long id, @RequestBody ForumCommentRequest request) {
         ForumComment comment = forumCommentService.createComment(id, request);
+        // 评论奖励 WEE
+        if (comment.getAuthorId() != null) {
+            weeBalanceService.addReward(comment.getAuthorId(), WeeBalanceService.REWARD_COMMENT, "评论奖励");
+        }
         return Result.success(comment);
     }
 

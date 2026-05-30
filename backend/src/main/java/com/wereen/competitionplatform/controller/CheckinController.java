@@ -4,6 +4,7 @@ import com.wereen.competitionplatform.common.Result;
 import com.wereen.competitionplatform.service.CaptchaService;
 import com.wereen.competitionplatform.utils.IpUtils;
 import com.wereen.competitionplatform.service.RewardEventService;
+import com.wereen.competitionplatform.service.WeeBalanceService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +43,7 @@ public class CheckinController {
     
     private final CaptchaService captchaService;
     private final RewardEventService rewardEventService;
+    private final WeeBalanceService weeBalanceService;
     private final ObjectMapper objectMapper;
 
     /**
@@ -164,8 +166,42 @@ public class CheckinController {
     }
 
     /**
+     * 每日签到（无需钱包，直接 DB 记录 + WEE 奖励）
+     */
+    @PostMapping("/daily")
+    public Result<Map<String, Object>> dailyCheckin() {
+        Long userId = getCurrentUserId();
+        if (userId == null) {
+            return Result.error("请先登录");
+        }
+        String day = LocalDate.now(ZoneOffset.UTC).toString();
+        String bizId = "checkin_" + day.replace("-", "");
+
+        boolean alreadyChecked = rewardEventService.existsEvent(userId, "CHECKIN", bizId);
+        Map<String, Object> response = new HashMap<>();
+        response.put("day", day);
+
+        if (alreadyChecked) {
+            response.put("success", false);
+            response.put("message", "今日已签到");
+            response.put("reward", 0);
+            return Result.success(response);
+        }
+
+        rewardEventService.createEvent(userId, "CHECKIN", bizId, "", "{}");
+        weeBalanceService.addReward(userId, WeeBalanceService.REWARD_CHECKIN, "每日签到");
+        long newBalance = weeBalanceService.getBalance(userId);
+
+        response.put("success", true);
+        response.put("message", "签到成功，+" + WeeBalanceService.REWARD_CHECKIN + " WEE");
+        response.put("reward", WeeBalanceService.REWARD_CHECKIN);
+        response.put("balance", newBalance);
+        return Result.success(response);
+    }
+
+    /**
      * 签名奖励消息（按照合约 _hashRewardMessage 的格式）
-     * 
+     *
      * 合约格式：
      * msgHash = keccak256(abi.encodePacked("WEE_REWARD", address(this), block.chainid, user, rewardType, bizId, deadline))
      * ethHash = toEthSignedMessageHash(msgHash)
