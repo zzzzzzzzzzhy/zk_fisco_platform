@@ -30,7 +30,7 @@
           </el-form-item>
 
           <div class="wallet-section">
-            <p class="wallet-section__label">连接钱包</p>
+            <p class="wallet-section__label">连接钱包（可选）</p>
             <meta-mask-connect
               :show-balance-card="false"
               @connected="handleWalletConnected"
@@ -47,12 +47,12 @@
             </el-alert>
             <el-alert
               v-else
-              type="warning"
+              type="info"
               :closable="false"
               class="wallet-tip"
               show-icon
             >
-              <span>请先连接 MetaMask 钱包，登录时会自动绑定。</span>
+              <span>不连接钱包也可登录，WEE 代币功能需要时再连接。</span>
             </el-alert>
           </div>
 
@@ -119,10 +119,6 @@ export default {
     handleSubmit() {
       this.$refs.loginForm.validate(async (valid) => {
         if (!valid) return
-        if (!this.walletAddress) {
-          this.$message.warning('请先连接钱包后再登录')
-          return
-        }
 
         this.loading = true
         try {

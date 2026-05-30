@@ -82,11 +82,6 @@ public class UserService {
      */
     @Transactional(rollbackFor = Exception.class)
     public Map<String, Object> login(String username, String password, String walletAddress) {
-        if (!StringUtils.hasText(walletAddress)) {
-            throw new BusinessException("请连接钱包后再登录");
-        }
-        String normalizedWallet = normalizeWalletAddress(walletAddress);
-
         // 查询用户
         LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(User::getUsername, username);
@@ -106,8 +101,10 @@ public class UserService {
             throw new BusinessException("账户已被禁用");
         }
 
-        // 绑定钱包地址
-        bindWalletAddress(user, normalizedWallet);
+        // 钱包地址可选：有则绑定，无则跳过
+        if (StringUtils.hasText(walletAddress)) {
+            bindWalletAddress(user, normalizeWalletAddress(walletAddress));
+        }
 
         // 生成 Token (包含角色信息)
         String role = user.getRole() != null ? user.getRole() : UserRole.USER;
