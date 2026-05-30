@@ -561,8 +561,8 @@ export default {
         await this.refreshBalance()
         await this.loadRollupBatches()
       } catch (error) {
-        console.error('加载初始数据失败:', error)
-        this.$message.error('加载数据失败: ' + error.message)
+        // 链未连接时静默处理（合约不可用属于正常情况）
+        console.warn('加载链上数据失败（链未连接）:', error.message)
       }
     },
 

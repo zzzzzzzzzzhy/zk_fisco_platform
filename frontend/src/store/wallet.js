@@ -290,8 +290,9 @@ const walletManager = {
 
       walletState.lastUpdated = new Date().toISOString()
     } catch (error) {
-      console.error('刷新余额失败:', error)
-      walletState.error = error.message
+      // 合约不可用（如未启动本地链）时静默处理，显示默认值
+      walletState.mtkBalance = walletState.mtkBalance || '0'
+      walletState.balance = walletState.balance || '0'
     }
   },
 
