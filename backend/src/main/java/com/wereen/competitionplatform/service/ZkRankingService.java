@@ -283,18 +283,26 @@ public class ZkRankingService {
 
     /**
      * Encode journal matching the guest's borsh-like output so the on-chain digest check passes.
-     * Layout: competitionId(le64) + hashes_len(le32) + hashes[] + ranking_len(le32) + ranking[](le64)
+     * Layout matches risc0-zkvm serde: each u8 is stored as one LE u32 word.
+     *   competitionId : 8 bytes  (LE u64)
+     *   hashes_len    : 4 bytes  (LE u32)
+     *   hashes        : n * 32 * 4 bytes  (each hash byte as LE u32 word)
+     *   ranking_len   : 4 bytes  (LE u32)
+     *   ranking       : m * 8 bytes  (LE u64 each)
      */
     private byte[] encodeJournal(Long competitionId, List<SubmissionCommitment> commits, List<Long> ranking) {
         int n   = commits.size();
         int m   = ranking.size();
-        int len = 8 + 4 + 32 * n + 4 + 8 * m;
+        // each hash byte costs 4 bytes (u32 word), everything else is standard
+        int len = 8 + 4 + (32 * 4) * n + 4 + 8 * m;
         ByteBuffer buf = ByteBuffer.allocate(len).order(ByteOrder.LITTLE_ENDIAN);
 
         buf.putLong(competitionId);
         buf.putInt(n);
         for (SubmissionCommitment c : commits) {
-            buf.put(unhex(c.getCommitmentHash()));
+            for (byte b : unhex(c.getCommitmentHash())) {
+                buf.putInt(Byte.toUnsignedInt(b)); // each byte as u32 word
+            }
         }
         buf.putInt(m);
         for (Long uid : ranking) {

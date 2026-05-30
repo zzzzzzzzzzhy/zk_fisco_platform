@@ -150,20 +150,25 @@ contract CompetitionCommitRegistry is Ownable {
     // ── internal ─────────────────────────────────────────────────────────────────
 
     /**
-     * @dev Recompute the journal digest the guest would have committed.
-     *      Layout mirrors RankingJournal in the guest (borsh/risc0 encoding).
-     *      For the mock verifier in local dev this check is skipped;
-     *      for production use the real RISC Zero verifier.
+     * @dev Recompute the journal digest matching risc0-zkvm serde encoding.
+     *
+     * risc0 serde stores each u8 as one LE u32 word (32-bit RISC-V word alignment).
+     * Layout:
+     *   competitionId : 8 bytes  (LE u64)
+     *   hashes_len    : 4 bytes  (LE u32)
+     *   hashes        : n * 32 * 4 bytes  (each byte of each hash as one LE u32 word)
+     *   ranking_len   : 4 bytes  (LE u32)
+     *   ranking       : m * 8 bytes  (each userId as LE u64)
      */
     function _computeJournalDigest(
         uint256         competitionId,
         bytes32[] storage committedHashes,
         uint64[]  calldata ranking
     ) internal view returns (bytes32) {
-        // Encode: competitionId(8) + hashes_len(4) + hashes(32*n) + ranking_len(4) + ranking(8*m)
         uint256 n = committedHashes.length;
         uint256 m = ranking.length;
-        bytes memory buf = new bytes(8 + 4 + 32 * n + 4 + 8 * m);
+        // each hash byte costs 4 bytes in risc0 word-per-byte encoding
+        bytes memory buf = new bytes(8 + 4 + (32 * 4) * n + 4 + 8 * m);
         uint256 off = 0;
 
         // competitionId LE64
@@ -174,11 +179,14 @@ contract CompetitionCommitRegistry is Ownable {
         for (uint256 i = 0; i < 4; i++) {
             buf[off++] = bytes1(uint8(n >> (8 * i)));
         }
-        // hashes
+        // hashes: each byte stored as a 4-byte LE u32 word
         for (uint256 i = 0; i < n; i++) {
             bytes32 h = committedHashes[i];
             for (uint256 j = 0; j < 32; j++) {
-                buf[off++] = h[j];
+                buf[off++] = h[j];   // byte value
+                buf[off++] = 0;      // upper 3 bytes of u32 word are zero
+                buf[off++] = 0;
+                buf[off++] = 0;
             }
         }
         // ranking length LE32
