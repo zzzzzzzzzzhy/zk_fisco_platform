@@ -43,10 +43,10 @@ export default {
     async load() {
       try {
         const [balRes, statusRes] = await Promise.all([
-          request.get('/wallet/balance', { params: { currency: 'WEE' } }),
+          request.get('/wallet/wee'),
           request.get('/checkin/status')
         ])
-        this.balance = balRes.data?.balance ?? 0
+        this.balance = balRes.data ?? 0
         this.checkedIn = statusRes.data?.submitted ?? false
       } catch {
         // 静默处理
@@ -57,7 +57,7 @@ export default {
       try {
         const res = await request.post('/checkin/daily')
         if (res.data?.success) {
-          this.balance = res.data.balance
+          this.balance = res.data.balance ?? this.balance + this.CHECKIN_REWARD
           this.checkedIn = true
           this.$message.success(res.data.message)
         } else {

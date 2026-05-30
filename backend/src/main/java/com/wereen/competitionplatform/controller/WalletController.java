@@ -5,8 +5,12 @@ import com.wereen.competitionplatform.common.Result;
 import com.wereen.competitionplatform.model.entity.WalletBalance;
 import com.wereen.competitionplatform.model.entity.WalletTransaction;
 import com.wereen.competitionplatform.service.WalletService;
+import com.wereen.competitionplatform.service.WeeBalanceService;
+import com.wereen.competitionplatform.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * 钱包控制器
@@ -17,6 +21,19 @@ import org.springframework.web.bind.annotation.*;
 public class WalletController {
 
     private final WalletService walletService;
+    private final WeeBalanceService weeBalanceService;
+    private final JwtUtil jwtUtil;
+
+    /**
+     * 获取当前登录用户 WEE 余额（前端主要调此接口）
+     */
+    @GetMapping("/wee")
+    public Result<Long> getMyWeeBalance(HttpServletRequest request) {
+        String token = resolveToken(request);
+        Long userId = jwtUtil.getUserIdFromToken(token);
+        if (userId == null) return Result.error("未登录");
+        return Result.success(weeBalanceService.getBalance(userId));
+    }
 
     /**
      * 获取用户余额
@@ -42,5 +59,11 @@ public class WalletController {
 
         PageResult<WalletTransaction> page = walletService.getTransactions(userId, type, current, size);
         return Result.success(page);
+    }
+
+    private String resolveToken(HttpServletRequest request) {
+        String bearer = request.getHeader("Authorization");
+        if (bearer != null && bearer.startsWith("Bearer ")) return bearer.substring(7);
+        return bearer;
     }
 }
