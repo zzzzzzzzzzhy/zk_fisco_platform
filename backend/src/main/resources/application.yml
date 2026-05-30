@@ -254,3 +254,9 @@ fisco:
 #  group-id: 1
 #  contract-address: a73046bac2ec6b98dad00ebca326ae173e9b60ec
 #  current-account: 0x752d5728bc74270032dcc8d5b4b5748b6d4b0dff
+
+# ZK ranking prover (leave blank to use built-in mock prover for local dev)
+# Set to the path of the compiled `prove` binary from zk/host to use real RISC Zero GPU proof
+zk:
+  ranking:
+    prover-binary: ${ZK_RANKING_PROVER_BINARY:}
