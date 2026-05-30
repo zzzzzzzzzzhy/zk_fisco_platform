@@ -21,45 +21,22 @@
 ## 架构总览
 
 ```mermaid
-graph TB
-    subgraph 前端["前端 Vue.js 2"]
-        UI[竞赛/论坛/内容分享]
-        Web3[MetaMask / ethers.js]
+flowchart LR
+    FE["**Frontend**\nVue.js + MetaMask"]
+    BE["**Backend**\nSpring Boot 3"]
+    DB[("**Data**\nMySQL · Redis · MinIO")]
+
+    subgraph chain["Blockchain  (Hardhat local / Polygon mainnet)"]
+        FISCO("FISCO BCOS\n国密存证链")
+        EVM("EVM Contracts\nForumToken · Rollup · Governor")
     end
 
-    subgraph 后端["后端 Spring Boot 3"]
-        API[REST API]
-        Chain1[国密存证服务]
-        Chain2[ZK Rollup 结算服务]
-        Chain3[治理同步服务]
-    end
-
-    subgraph 数据层["数据层"]
-        MySQL[(MySQL 8)]
-        Redis[(Redis)]
-        MinIO[MinIO 对象存储]
-    end
-
-    subgraph 区块链["区块链层（本地 Hardhat / 生产 Polygon）"]
-        FISCO[FISCO BCOS 国密链\n企业级存证]
-        ForumToken[ForumTokenExtension\nWEE 代币 + 激励规则]
-        ContentShare[ContentShareRegistry\nEIP-712 内容存证]
-        Rollup[ContentRollupRegistry\nZK Rollup 批次注册]
-        RollupDist[RollupRewardDistributor\nZK 证明驱动发奖]
-        Governor[RewardGovernor\n一人一票治理]
-    end
-
-    UI --> API
-    Web3 --> ForumToken
-    API --> Chain1 --> FISCO
-    API --> Chain1 --> ContentShare
-    API --> Chain2 --> Rollup
-    API --> Chain2 --> RollupDist
-    API --> Chain3 --> Governor
-    API --> MySQL
-    API --> Redis
-    API --> MinIO
-    Governor -->|updateRewardConfig| ForumToken
+    FE -->|REST API| BE
+    FE -->|ethers.js| EVM
+    BE --> DB
+    BE -->|SM3 + storeEvidence| FISCO
+    BE -->|submitBatch / vote| EVM
+    EVM -->|updateRewardConfig| EVM
 ```
 
 ---
@@ -74,21 +51,20 @@ graph TB
 
 ```mermaid
 sequenceDiagram
-    participant User as 参赛者
-    participant Backend as 后端
-    participant FISCO as FISCO BCOS 国密链
-    participant DB as 数据库
+    actor User as 参赛者
+    participant API as 后端 API
+    participant DB as MySQL
+    participant FISCO as FISCO BCOS
 
-    User->>Backend: 上传作品文件
-    Backend->>Backend: 计算 SHA-256 哈希
-    Backend->>Backend: 计算 SM3 国密哈希（SM3HashUtil）
-    Backend->>DB: 保存提交记录（chainStatus=0 待上链）
-    Backend-->>User: 返回上传成功
+    User->>API: 上传作品文件
+    API->>API: SHA-256 + SM3 双哈希
+    API->>DB: 写入 submissions (chainStatus=0)
+    API-->>User: 上传成功 ✓
 
-    Note over Backend,FISCO: 异步上链（不阻塞响应）
-    Backend->>FISCO: EvidenceContract.storeEvidence(bizType, bizId, sha256Hash)
-    FISCO-->>Backend: txHash + blockHeight
-    Backend->>DB: 更新 chain_proofs 表<br/>（txHash, blockHeight, sm3Hash, chainStatus=2）
+    Note over API,FISCO: 异步上链，不阻塞响应
+    API->>FISCO: storeEvidence(bizId, sha256Hash)
+    FISCO-->>API: txHash + blockHeight
+    API->>DB: 写入 chain_proofs (sm3Hash, txHash, status=2)
 ```
 
 **关键设计：**
@@ -124,23 +100,18 @@ GET /api/chain/evidence/{bizType}/{bizId}
 ### 链路设计
 
 ```mermaid
-graph LR
-    subgraph 链下 Off-chain
-        A[用户操作\n签到/发帖/评论] -->|签名| B[(reward_events 表\n待打包)]
-        B -->|定时聚合| C[构建 Merkle Tree\n计算 MerkleRoot]
-        C -->|RISC Zero Prover| D[生成 ZK 证明\nGroth16 Seal]
-    end
+flowchart LR
+    A([用户操作]) --> B[(reward_events)]
+    B -->|每2小时聚合| C[Merkle Tree]
+    C -->|rollup-prove| D[[ZK Proof\nGroth16 Seal]]
 
-    subgraph 链上 On-chain
-        E[ContentRollupRegistry\n注册批次 + MerkleRoot]
-        F[RiscZeroVerifier\n验证 Groth16 ZK 证明]
-        G[RollupRewardDistributor\n按 Merkle Proof 发放 WEE]
-    end
+    D -->|submitBatch| E[ContentRollupRegistry]
+    E -->|verify seal| F{RiscZeroVerifier}
+    F -->|通过| G[RollupRewardDistributor]
+    G -->|claimReward + MerkleProof| H([用户钱包])
 
-    D -->|submitBatch\ntxHash| E
-    D -->|ZK Seal| F
-    F -->|验证通过| G
-    G -->|transfer WEE| H[用户钱包]
+    style D fill:#f0f4ff,stroke:#4a90d9
+    style F fill:#fff7e6,stroke:#f0a500
 ```
 
 **关键设计：**
@@ -184,10 +155,10 @@ graph LR
 
 ```mermaid
 stateDiagram-v2
-    [*] --> Active: propose(description, calldata)
-    Active --> Succeeded: 投票期结束\n且赞成票 ≥ QUORUM\n且赞成 > 反对
-    Active --> Defeated: 投票期结束\n未达法定人数或反对多
-    Succeeded --> Executed: execute(proposalId)\n调用 ForumTokenExtension\n.updateRewardConfig()
+    [*] --> Active : propose()
+    Active --> Succeeded : 投票期结束 · 赞成 ≥ QUORUM
+    Active --> Defeated : 投票期结束 · 未达法定人数
+    Succeeded --> Executed : execute() → updateRewardConfig()
     Defeated --> [*]
     Executed --> [*]
 ```

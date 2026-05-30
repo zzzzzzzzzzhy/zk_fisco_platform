@@ -40,22 +40,15 @@
 ```
 
 ```mermaid
-graph LR
-    subgraph 链下 Off-chain
-        A[用户操作\n签到/发帖/评论] -->|后端记录| B[(reward_events\n待打包)]
-        B -->|定时任务 2h/次| C[构建 Merkle Tree\n聚合奖励]
-        C -->|rollup-prove 程序| D[RISC Zero\n生成 ZK 证明]
-    end
+flowchart LR
+    A([用户操作]) -->|后端记录| B[(reward_events)]
+    B -->|定时聚合 2h| C[Merkle Tree]
+    C -->|rollup-prove| D[[ZK Proof]]
 
-    subgraph 链上 On-chain
-        E[ContentRollupRegistry\n注册批次 + MerkleRoot]
-        F[RiscZeroVerifier\n验证 Groth16 证明]
-        G[RollupRewardDistributor\n按 Merkle Proof 发放]
-    end
-
-    D -->|submitBatch| E & F
-    F -->|验证通过后解锁| G
-    G -->|claimReward + MerkleProof| H[用户钱包]
+    D -->|submitBatch| E[ContentRollupRegistry]
+    D -->|ZK Seal| F{RiscZeroVerifier}
+    F -->|验证通过| G[RollupRewardDistributor]
+    G -->|claimReward| H([用户钱包])
 ```
 
 ---
@@ -141,23 +134,21 @@ ROLLUP_PROOF_FILE=/tmp/batch-42.proof \
 
 ```mermaid
 sequenceDiagram
-    participant Backend as 后端
-    participant Registry as ContentRollupRegistry
-    participant Verifier as RiscZeroVerifier
-    participant Distributor as RollupRewardDistributor
-    participant User as 用户
+    actor B as 后端
+    participant R as ContentRollupRegistry
+    participant V as RiscZeroVerifier
+    participant D as RollupRewardDistributor
+    actor U as 用户
 
-    Backend->>Registry: submitBatch(merkleRoot, count, journalDigest, zkSeal)
-    Registry->>Verifier: verify(zkSeal, IMAGE_ID, journalDigest)
-    Verifier-->>Registry: 验证通过（或 revert）
-    Registry->>Registry: 记录批次 batchId + merkleRoot
-    Registry-->>Backend: txHash
+    B->>R: submitBatch(merkleRoot, journalDigest, zkSeal)
+    R->>V: verify(zkSeal, IMAGE_ID, journalDigest)
+    V-->>R: OK / revert
+    R-->>B: txHash ✓
 
-    Note over User,Distributor: 用户随时可以领取
-    User->>Distributor: claimReward(batchId, amount, merkleProof)
-    Distributor->>Registry: getBatchMerkleRoot(batchId)
-    Distributor->>Distributor: 验证 MerkleProof
-    Distributor->>User: transfer WEE tokens
+    Note over U,D: 用户任意时间领取
+    U->>D: claimReward(batchId, amount, merkleProof)
+    D->>R: getBatchMerkleRoot(batchId)
+    D-->>U: transfer WEE ✓
 ```
 
 ### `submitBatch` 的安全保证
